@@ -1,0 +1,276 @@
+/* =========================================
+   CONFIGURACIÓN GLOBAL Y VARIABLES 
+   ========================================= */
+:root {
+    /* Definimos tu paleta de colores como variables para reutilizarlas fácilmente */
+    --primary-color: #162660;   /* Royal Blue */
+    --accent-color: #D0E6FD;    /* Powder Blue */
+    --bg-card-color: #F1E4D1;   /* Warm Beige */
+    --text-dark: #333;
+    --text-light: #fff;
+    --border-radius: 8px;       /* Para el estilo moderno minimalista */
+    --font-main: 'Poppins', sans-serif; /* Formal y moderno */
+    /* Añade esto dentro de tu :root existente */
+    --color-lavado: #3B82F6;     /* Azul agua vibrante */
+    --color-tintoreria: #8B9BB4; /* Gris azulado elegante (armoniza con Royal Blue) */
+    --color-planchado: #F59E0B;  /* Naranja cálido */
+    --color-express: #10B981;    /* Verde esmeralda moderno */
+}
+
+/* Reset básico para que todo se vea igual en todos los navegadores */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: #f9f9f9; /* Fondo muy claro para la página */
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================
+   ESTILOS DEL ENCABEZADO (Header)
+   ========================================= */
+.main-header {
+    background-color: var(--primary-color); /* Royal Blue */
+    color: var(--text-light);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-container {
+    display: flex; /* Flexbox para alineación horizontal moderna */
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.logo-icon { font-size: 1.6rem; }
+
+.header-center-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: var(--text-light);
+    opacity: 0.8;
+    transition: opacity 0.3s;
+    font-weight: 500;
+}
+
+.main-nav a:hover { opacity: 1; }
+
+.main-nav a.active-nav {
+    border-bottom: 2px solid var(--accent-color); /* Sutil Powder Blue */
+    padding-bottom: 5px;
+    opacity: 1;
+}
+
+.btn-nuevo-pedido {
+    background-color: var(--bg-card-color);
+    color: #000 !important;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 12px;
+    border: 2px solid #000;
+    box-shadow: 0px 4px 0px #000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    margin-left: 10px;
+    opacity: 1 !important;
+}
+
+.btn-nuevo-pedido:active {
+    transform: translateY(4px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+/* =========================================
+   CONTENIDO PRINCIPAL Y FORMULARIO
+   ========================================= */
+.login-main {
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 0 1rem;
+    text-align: center;
+}
+
+.main-title {
+    font-weight: 600;
+    font-size: 2rem;
+    color: #444;
+    margin-bottom: 2rem;
+}
+
+.form-card {
+    background-color: var(--bg-card-color); /* Warm Beige */
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra suave minimalista */
+    text-align: left;
+}
+
+/* Flexbox para poner los campos side-by-side como en el mockup */
+.form-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    flex: 1; /* Cada campo toma el mismo espacio */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Estilo moderno para los inputs */
+.input-group input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+/* Efecto de enfoque usando Powder Blue */
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #fff;
+}
+
+.form-instruction {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 2rem;
+    border-left: 3px solid var(--accent-color); /* Powder Blue de acento */
+    padding-left: 10px;
+}
+
+/* Botón de acción (añadido para completar la UI moderna) */
+.btn-submit {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto; /* Centrado */
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: var(--font-main);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: #0c1844; /* Un tono más oscuro del Royal Blue */
+}
+
+.btn-submit:active {
+    transform: translateY(1px); /* Efecto de presionar */
+}
+
+/* =========================================
+   PÁGINA DE SERVICIOS
+   ========================================= */
+.services-main {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.services-main .main-title {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+/* 🌟 Buena Práctica: CSS Grid para tarjetas dinámicas */
+.services-grid {
+    display: grid;
+    /* Esto le dice al navegador: "Crea columnas de mínimo 300px. Si sobra espacio, repártelo equitativamente". Es responsivo automático sin media queries complejos. */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+/* Diseño de la Tarjeta */
+.service-card {
+    background-color: #fff; /* Fondo blanco para la zona de INFO */
+    border-radius: var(--border-radius);
+    overflow: hidden; /* Evita que el color del header se salga de las esquinas redondeadas */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #eaeaea;
+}
+
+.service-card:hover {
+    transform: translateY(-5px); /* Pequeño salto al pasar el mouse */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Encabezado de la tarjeta (colores) */
+.service-header {
+    padding: 1.5rem;
+    color: #fff;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+}
+
+.service-title-area h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.service-title-area p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    line-height: 1.3;
+}
+
+/* Clases utilitarias de colores para cada servicio */
+.bg-lavado { background-color: var(--color-lavado); }
+.bg-tintoreria { background-color: var(--color-tintoreria); }
+.bg-planchado { background-color: var(--color-planchado); }
+.bg-express { background-color: var(--color-express); }
+
+/* Cuerpo de la tarjeta (Zona INFO) */
+.service-body {
+    padding: 2rem;
+    flex-grow: 1; /* Hace que todas las tarjetas tengan la misma altura sin importar el texto interior */
+    background-color: var(--bg-card-color); /* Usamos tu Warm Beige aquí */
+    min-height: 200px;
+}
