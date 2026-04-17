@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Pedido - LAVANDERIA ERP</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">LAVANDERIA</span>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="dashboard.html">Inicio</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                    <li><a href="sucursales.html">Sucursales</a></li>
+                    <li><a href="perfil.html">Mi Cuenta</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="#" class="btn-nuevo-pedido" style="background-color: var(--primary-color); color: #fff !important;">Registrar nuevo pedido</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="order-main">
+        <div class="order-card">
+            <h1 class="main-title" style="text-align: center; margin-bottom: 2rem;">Configura tu Pedido</h1>
+
+            <form action="" class="order-form">
+                
+                <fieldset class="form-section">
+                    <legend>1. Información del Cliente</legend>
+                    
+                    <div class="form-row-2">
+                        <div class="input-group">
+                            <label for="nombre">Nombre Completo *</label>
+                            <input type="text" id="nombre" placeholder="Juan Pérez" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="telefono">Número de Teléfono *</label>
+                            <input type="tel" id="telefono" placeholder="55 0000 0000" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 1.5rem;">
+                        <label for="direccion">Dirección de Entrega (Requerido solo para envíos a domicilio)</label>
+                        <input type="text" id="direccion" placeholder="Calle, Número, Colonia, C.P.">
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <legend>2. Detalles del Servicio</legend>
+                    
+                    <div class="form-row-2">
+                        <div class="input-group">
+                            <label for="sucursal">Sucursal de Atención *</label>
+                            <select id="sucursal" required>
+                                <option value="" disabled selected>Selecciona una sucursal...</option>
+                                <option value="1">Salamanca</option>
+                                <option value="2">Hegel</option>
+                                <option value="3">Moliere</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="servicio">Tipo de Servicio *</label>
+                            <select id="servicio" required>
+                                <option value="" disabled selected>Selecciona un servicio...</option>
+                                <option value="lavado">Lavado</option>
+                                <option value="tintoreria">Tintorería</option>
+                                <option value="planchado">Planchado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2" style="margin-top: 1.5rem;">
+                        <div class="input-group">
+                            <label for="kilos">Peso Estimado (Kilos) *</label>
+                            <select id="kilos" required>
+                                <option value="" disabled selected>Selecciona el peso...</option>
+                                <option value="1">1 kg (Mínimo)</option>
+                                <option value="5">Hasta 5 kg</option>
+                                <option value="10">Hasta 10 kg</option>
+                                <option value="15">Hasta 15 kg</option>
+                                <option value="20">Hasta 20 kg</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="options-grid">
+                        <div class="input-group">
+                            <label class="option-title">Tipo de Detergente</label>
+                            <div class="radio-cards">
+                                <label class="radio-card">
+                                    <input type="radio" name="detergente" value="normal" checked>
+                                    <span class="card-content">Normal</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="detergente" value="hipoalergenico">
+                                    <span class="card-content">Hipoalergénico</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="option-title">¿Agregar Suavizante?</label>
+                            <div class="radio-cards">
+                                <label class="radio-card">
+                                    <input type="radio" name="suavizante" value="si" checked>
+                                    <span class="card-content">Sí</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="suavizante" value="no">
+                                    <span class="card-content">No</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <legend>3. Logística y Pago</legend>
+                    
+                    <div class="options-grid">
+                        <div class="input-group">
+                            <label class="option-title">Método de Entrega</label>
+                            <div class="radio-cards">
+                                <label class="radio-card">
+                                    <input type="radio" name="entrega" value="sucursal" checked>
+                                    <span class="card-content">Recoger en Sucursal</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="entrega" value="domicilio">
+                                    <span class="card-content">Servicio a Domicilio</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="option-title">Velocidad del Servicio</label>
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="express" value="si" checked>
+                                <span class="card-content">
+                                    <strong>Servicio Express</strong>
+                                    <small>(+ Costo Extra)</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 1.5rem;">
+                        <label class="option-title">Método de Pago</label>
+                        <div class="radio-cards">
+                            <label class="radio-card">
+                                <input type="radio" name="pago" value="tarjeta" checked>
+                                <span class="card-content">💳 Tarjeta (Redirigir a pasarela)</span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="pago" value="efectivo">
+                                <span class="card-content">💵 Efectivo (Al entregar)</span>
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="order-summary-box">
+                    <h3 class="summary-title">Resumen de tu Pedido</h3>
+                    <ul class="summary-details">
+                        <li><strong>Servicio:</strong> Lavado (Hasta 5 kg)</li>
+                        <li><strong>Opciones:</strong> Detergente Normal, Con Suavizante</li>
+                        <li><strong>Logística:</strong> Recoger en Sucursal</li>
+                        <li class="highlight-express">⚡ Servicio Express Incluido</li>
+                    </ul>
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <span class="total-price">$150.00 MXN</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn-submit" style="font-size: 1.2rem; padding: 15px 40px; width: 100%; max-width: 400px;">Proceder al Pago</button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

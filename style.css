@@ -771,3 +771,457 @@ body {
         gap: 5px;
     }
 }
+
+/* =========================================
+   PÁGINA CENTRAL (DASHBOARD)
+   ========================================= */
+.dashboard-main {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem; /* Espaciado uniforme entre los bloques */
+}
+
+.welcome-block h1 {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-block p {
+    color: #555;
+    font-size: 1.1rem;
+}
+
+/* --- Bloque 2: Tarjeta Recargable --- */
+.wallet-block {
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+    overflow: hidden; /* Para que las pestañas no se salgan del borde redondeado */
+}
+
+.wallet-tabs {
+    display: flex;
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.wallet-tabs .tab {
+    padding: 15px 25px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+}
+
+.wallet-tabs .active-tab {
+    background-color: #fff;
+    color: var(--primary-color);
+    border-top: 3px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.wallet-content {
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.wallet-visual {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, var(--primary-color), #2a3f85);
+    border-radius: 15px;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 20px rgba(22, 38, 96, 0.2);
+}
+
+.wallet-info {
+    flex: 1;
+}
+
+.wallet-id {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 0.3rem;
+}
+
+.wallet-date {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 2rem;
+}
+
+.balance-title {
+    color: #444;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.balance-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #10B981; /* Verde esmeralda para connotar dinero/saldo positivo */
+    line-height: 1;
+}
+
+/* --- Bloque 3: Historial de Pedidos (Tabla) --- */
+.section-title {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Permite scroll horizontal si la pantalla es pequeña */
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Asegura que la tabla no se aplaste demasiado */
+}
+
+.history-table th, 
+.history-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.history-table th {
+    background-color: var(--accent-color); /* Powder Blue */
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.history-table td {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.history-table tr:last-child td {
+    border-bottom: none; /* Quita el borde de la última fila */
+}
+
+.history-table tr:hover {
+    background-color: #f9fafb; /* Efecto sutil al pasar el mouse */
+}
+
+.status-badge {
+    background-color: #f3f4f6;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Diseño Responsivo */
+@media (max-width: 768px) {
+    .wallet-content {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .wallet-tabs {
+        flex-direction: column;
+    }
+    
+    .wallet-tabs .active-tab {
+        border-top: none;
+        border-left: 3px solid var(--primary-color);
+    }
+}
+
+/* =========================================
+   PÁGINA DE HISTORIAL COMPLETO (Con Scroll)
+   ========================================= */
+.full-history-main {
+    max-width: 1000px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.history-header {
+    margin-bottom: 2rem;
+}
+
+.history-header p {
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+/* 🌟 El contenedor mágico para el Scroll */
+.scrollable-table-wrapper {
+    width: 100%;
+    max-height: 400px; /* Define la altura máxima antes de mostrar el scroll */
+    overflow-y: auto;  /* Habilita el scroll vertical */
+    overflow-x: auto;  /* Habilita el scroll horizontal si la pantalla es muy chica */
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+}
+
+/* Personalización del Scrollbar para que se vea moderno */
+.scrollable-table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.scrollable-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 4px;
+}
+.scrollable-table-wrapper::-webkit-scrollbar-thumb {
+    background: #c1c1c1; 
+    border-radius: 4px;
+}
+.scrollable-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color); 
+}
+
+.client-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+/* 🌟 Encabezado Pegajoso (Sticky Header) */
+.client-history-table th {
+    position: sticky;
+    top: 0; /* Se pega al tope del contenedor */
+    background-color: var(--accent-color); /* Powder Blue */
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 15px 20px;
+    text-align: left;
+    z-index: 10; /* Asegura que el texto que pasa por debajo no se encime */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil para separar el encabezado del contenido */
+}
+
+.client-history-table td {
+    padding: 15px 20px;
+    font-size: 0.95rem;
+    color: #444;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.client-history-table tr:last-child td {
+    border-bottom: none;
+}
+
+.client-history-table tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Variante de color para estados activos vs terminados */
+.badge-active {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+}
+
+/* =========================================
+   PÁGINA DE NUEVO PEDIDO Y RESUMEN
+   ========================================= */
+.order-main {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.order-card {
+    background-color: #ffffff;
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+}
+
+.form-section {
+    border: none;
+    border-top: 2px solid var(--accent-color);
+    margin-bottom: 3rem;
+    padding-top: 2rem;
+}
+
+.form-section legend {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 0 15px;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+.input-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    background-color: #fff;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23162660%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 1rem top 50%;
+    background-size: 0.65rem auto;
+}
+
+.input-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.option-title {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.radio-cards {
+    display: flex;
+    gap: 15px;
+}
+
+.radio-card, .checkbox-card {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+}
+
+.radio-card input, .checkbox-card input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: var(--border-radius);
+    text-align: center;
+    color: #555;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.checkbox-card .card-content {
+    background-color: #f9f9f9;
+}
+
+.radio-card input:checked + .card-content, 
+.checkbox-card input:checked + .card-content {
+    border-color: var(--primary-color);
+    background-color: rgba(22, 38, 96, 0.05);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 🌟 ESTILOS NUEVOS: Caja de Resumen */
+.order-summary-box {
+    background-color: var(--bg-card-color); /* Tu Warm Beige */
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    margin: 3rem 0 1rem 0;
+    border: 2px dashed var(--accent-color); /* Borde punteado para que parezca un ticket */
+}
+
+.summary-title {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+.summary-details {
+    list-style: none;
+    margin-bottom: 1.5rem;
+    color: #444;
+    font-size: 1rem;
+}
+
+.summary-details li {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dfd2be; /* Línea sutil adaptada al beige */
+}
+
+.summary-details li:last-child {
+    border-bottom: none;
+}
+
+.highlight-express {
+    color: #d97706; /* Color ámbar/naranja para destacar */
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--primary-color);
+}
+
+.summary-total span:first-child {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.total-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #10B981; /* Verde esmeralda para el precio */
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .order-card {
+        padding: 2rem 1.5rem;
+    }
+    .options-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .summary-total {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal - LAVANDERIA ERP</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">LAVANDERIA</span>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" class="active-nav">Inicio</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                    <li><a href="sucursales.html">Sucursales</a></li>
+                    <li><a href="perfil.html">Mi Cuenta</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        
+        <section class="welcome-block">
+            <h1 class="main-title">Hola, [Nombre del usuario] 👋</h1>
+            <p>Bienvenido a tu panel central. Aquí puedes ver el resumen de tu cuenta y tus servicios.</p>
+        </section>
+
+        <section class="wallet-block">
+            <div class="wallet-tabs">
+                <div class="tab active-tab">Detalle de la Tarjeta Recargable</div>
+                <div class="tab">Opciones de Saldo y Recarga</div>
+            </div>
+            
+            <div class="wallet-content">
+                <div class="wallet-visual">
+                    <span>TARJETA<br>RECARGABLE</span>
+                </div>
+                
+                <div class="wallet-info">
+                    <p class="wallet-id">Tarjeta ID: <strong>[000000000]</strong></p>
+                    <p class="wallet-date">Última Verificación: [DD Mes AAAA HH:MM AM/PM]</p>
+                    
+                    <h3 class="balance-title">Saldo Disponible:</h3>
+                    <p class="balance-amount">$[0.00] MXN</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="history-block">
+            <h2 class="section-title">Control y Historial de Ciclos de Pedidos</h2>
+            
+            <div class="table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ID Pedido</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Estado</th>
+                            <th>Ciclo y Tiempo (Detalle)</th>
+                            <th>Fecha y Hora (Registro)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>[P-000]</td>
+                            <td>[Nombre del Cliente]</td>
+                            <td>[Tipo de Servicio]</td>
+                            <td><span class="status-badge">[Estado]</span></td>
+                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
+                            <td>[DD Mes AAAA HH:MM AM]</td>
+                        </tr>
+                        <tr>
+                            <td>[P-000]</td>
+                            <td>[Nombre del Cliente]</td>
+                            <td>[Tipo de Servicio]</td>
+                            <td><span class="status-badge">[Estado]</span></td>
+                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
+                            <td>[DD Mes AAAA HH:MM AM]</td>
+                        </tr>
+                        <tr>
+                            <td>[P-000]</td>
+                            <td>[Nombre del Cliente]</td>
+                            <td>[Tipo de Servicio]</td>
+                            <td><span class="status-badge">[Estado]</span></td>
+                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
+                            <td>[DD Mes AAAA HH:MM AM]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
