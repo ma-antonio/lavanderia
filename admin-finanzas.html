@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Financiero - ERP Lavandería</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">🏠 Panel Principal</a></li>
+                    <li><a href="admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="#" class="active">💰 Finanzas y Caja</a></li>
+                    <li><a href="#">📋 Historial de Pedidos</a></li>
+                    <li><a href="#">👥 Directorio de Clientes</a></li>
+                    <li><a href="#">📦 Inventario</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            
+            <div class="admin-header header-finance">
+                <div>
+                    <h1>Panel Financiero</h1>
+                    <p class="subtitle">Módulo: Ingresos Diarios</p>
+                </div>
+                <div class="header-time">
+                    <span class="date-display">📅 20 Abril 2026</span>
+                    <span class="time-display">🕘 09:41 AM</span>
+                </div>
+            </div>
+
+            <div class="finance-kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Generado Hoy</span>
+                    <span class="kpi-value text-success">$4,250.00</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Pedidos Cobrados</span>
+                    <span class="kpi-value">18</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Ticket Promedio</span>
+                    <span class="kpi-value">$236.11</span>
+                </div>
+            </div>
+
+            <div class="finance-content-grid">
+                
+                <div class="admin-panel finance-table-panel">
+                    <h3>Transacciones Recientes</h3>
+                    <div class="dense-table-wrapper scrollable-finance">
+                        <table class="admin-dense-table finance-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Método</th>
+                                    <th>Fecha / Hora</th>
+                                    <th>Estado</th>
+                                    <th class="align-right">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>F-048</td>
+                                    <td>Juan Garcia López</td>
+                                    <td>Lavado y Planchado</td>
+                                    <td>Tarjeta</td>
+                                    <td>20 Abr, 09:30 AM</td>
+                                    <td><span class="badge-finance badge-paid">Pagado</span></td>
+                                    <td class="align-right"><strong>$440.80</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>F-047</td>
+                                    <td>Ana Sofía Martínez</td>
+                                    <td>Lavado (10kg)</td>
+                                    <td>Efectivo</td>
+                                    <td>20 Abr, 09:15 AM</td>
+                                    <td><span class="badge-finance badge-paid">Pagado</span></td>
+                                    <td class="align-right"><strong>$180.00</strong></td>
+                                </tr>
+                                <tr class="row-cancelled">
+                                    <td>F-046</td>
+                                    <td>Carlos Slim Helú</td>
+                                    <td>Tintorería</td>
+                                    <td>Transferencia</td>
+                                    <td>20 Abr, 08:50 AM</td>
+                                    <td><span class="badge-finance badge-cancelled">Cancelado</span></td>
+                                    <td class="align-right text-muted">$350.00</td>
+                                </tr>
+                                <tr>
+                                    <td>F-045</td>
+                                    <td>María Fernanda Ruiz</td>
+                                    <td>Solo Planchado</td>
+                                    <td>Efectivo</td>
+                                    <td>20 Abr, 08:20 AM</td>
+                                    <td><span class="badge-finance badge-paid">Pagado</span></td>
+                                    <td class="align-right"><strong>$120.00</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="finance-sidebar-panel">
+                    
+                    <div class="admin-panel">
+                        <h3>Desglose por Método</h3>
+                        <ul class="method-list">
+                            <li>
+                                <span>💵 Efectivo</span>
+                                <strong>$1,200.00</strong>
+                            </li>
+                            <li>
+                                <span>💳 Tarjeta</span>
+                                <strong>$2,500.00</strong>
+                            </li>
+                            <li>
+                                <span>📱 Transferencia</span>
+                                <strong>$550.00</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="admin-panel system-status-panel">
+                        <h3>Estado del Sistema</h3>
+                        <ul class="status-list">
+                            <li><span class="status-dot dot-active"></span> Conexión Servidor (Activo)</li>
+                            <li><span class="status-dot dot-active"></span> Terminal Bancaria (Sincronizado)</li>
+                            <li><span class="status-dot dot-error"></span> Impresora Tickets (Error)</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="finance-actions">
+                <button type="button" class="btn-action btn-primary">Generar Corte de Caja</button>
+                <button type="button" class="btn-action btn-secondary">Descargar Reporte PDF</button>
+                <button type="button" class="btn-action btn-secondary">Ver Historial Completo</button>
+            </div>
+
+        </main>
+    </div>
+    <div class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirmar Corte de Caja</h2>
+            <button type="button" class="btn-close-modal" onclick="window.location.reload();">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <p class="modal-warning">⚠️ Esta acción cerrará el turno actual y generará el reporte final de ingresos. No se podrán editar transacciones después de este paso.</p>
+            
+            <div class="summary-confirm-grid">
+                <div class="summary-item">
+                    <span>Efectivo en Caja (Esperado):</span>
+                    <strong>$1,200.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Ventas con Tarjeta:</span>
+                    <strong>$2,500.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total de Turno:</span>
+                    <strong class="total-highlight">$4,250.00</strong>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="cash-counted">Efectivo Físico Contado ($) *</label>
+                <input type="number" id="cash-counted" placeholder="Ingrese el monto real en caja" required>
+                <small>Ingrese el monto total de dinero físico presente en la gaveta.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="observations">Observaciones de Cierre</label>
+                <textarea id="observations" rows="2" placeholder="Notas sobre diferencias, billetes falsos, etc."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-action btn-secondary" onclick="window.location.reload();">Cancelar</button>
+            <button type="button" class="btn-action btn-success-large" style="margin:0; width:auto; padding: 10px 30px;">Finalizar y Cerrar Caja</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
