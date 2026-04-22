@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Clientes - ERP Lavandería</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">🏠 Panel Principal</a></li>
+                    <li><a href="admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="#">📋 Historial de Pedidos</a></li>
+                    <li><a href="#" class="active">👥 Historial de Clientes</a></li>
+                    <li><a href="#">📊 Reportes y Estadísticas</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Búsqueda de Historial de Cliente</h1>
+                <p class="subtitle">Consulta los servicios previos y el estado de cuenta de un cliente específico.</p>
+            </div>
+
+            <div class="admin-panel">
+                <h3>Criterios de Búsqueda</h3>
+                <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">Ingrese al menos un dato para localizar al cliente.</p>
+                
+                <form action="" class="search-inline-form">
+                    <div class="form-group">
+                        <label for="search-nombre">Nombre del Cliente</label>
+                        <input type="text" id="search-nombre" placeholder="Ej. Juan García">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search-correo">Correo Electrónico</label>
+                        <input type="email" id="search-correo" placeholder="correo@ejemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search-tel">Teléfono</label>
+                        <input type="tel" id="search-tel" placeholder="10 dígitos">
+                    </div>
+
+                    <div class="form-group btn-align">
+                        <button type="button" class="btn-action btn-primary" style="width: 100%;">Buscar Cliente</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-panel mt-20">
+                <div class="panel-header-flex">
+                    <h3>Resultados del Historial</h3>
+                    <span class="customer-found-label">Mostrando resultados para: <strong>Juan García (55-1234-5678)</strong></span>
+                </div>
+                
+                <div class="dense-table-wrapper">
+                    <table class="admin-dense-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">ID Pedido</th>
+                                <th>Fecha Pedido</th>
+                                <th>Estado</th>
+                                <th>Servicio</th>
+                                <th class="align-right" style="width: 150px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>P-501</strong></td>
+                                <td>25 Oct 2023</td>
+                                <td><span class="badge-finance badge-paid">Entregado</span></td>
+                                <td>Lavado y Planchado</td>
+                                <td class="align-right">$450.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P-488</strong></td>
+                                <td>18 Oct 2023</td>
+                                <td><span class="badge-finance badge-paid">Entregado</span></td>
+                                <td>Lavado Completo</td>
+                                <td class="align-right">$300.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P-475</strong></td>
+                                <td>12 Oct 2023</td>
+                                <td><span class="badge-finance badge-paid">Entregado</span></td>
+                                <td>Tintorería</td>
+                                <td class="align-right">$650.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P-460</strong></td>
+                                <td>05 Oct 2023</td>
+                                <td><span class="badge-finance badge-paid">Entregado</span></td>
+                                <td>Solo Lavado</td>
+                                <td class="align-right">$800.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

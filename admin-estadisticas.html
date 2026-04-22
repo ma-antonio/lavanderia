@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - ERP Lavandería</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">🏠 Panel Principal</a></li>
+                    <li><a href="admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="admin-reportes.html">📊 Reportes</a></li>
+                    <li><a href="#" class="active">📈 Estadísticas de Servicios</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Rendimiento y Estadísticas de Servicios</h1>
+                <p class="subtitle">Análisis visual del volumen de trabajo y rentabilidad.</p>
+            </div>
+
+            <div class="admin-toolbar" style="justify-content: flex-start; gap: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="rango-fecha" style="font-weight: bold; color: #495057;">Rango de Fecha</label>
+                    <select id="rango-fecha" style="width: 200px; margin-top: 5px;">
+                        <option value="semana">Última Semana</option>
+                        <option value="mes" selected>Último Mes</option>
+                        <option value="ano">Último Año</option>
+                        <option value="personalizado">Personalizado...</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                    <button type="button" class="btn-util">Aplicar Filtro</button>
+                </div>
+            </div>
+
+            <div class="admin-content-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                
+                <div class="admin-panel" style="display: flex; flex-direction: column;">
+                    <h3>Desglose por Categoría (Gráfica)</h3>
+                    
+                    <div class="chart-placeholder">
+                        <div class="chart-mockup-circle"></div>
+                        <p class="chart-mockup-text">[Área reservada para inicializar Chart.js / Gráfica de Anillo]</p>
+                        
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="color-box" style="background: #007bff;"></span> Lavado</span>
+                            <span class="legend-item"><span class="color-box" style="background: #fd7e14;"></span> Tintorería</span>
+                            <span class="legend-item"><span class="color-box" style="background: #e83e8c;"></span> Planchado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <h3>Resumen del Periodo Seleccionado</h3>
+                    
+                    <div class="dense-table-wrapper">
+                        <table class="admin-dense-table summary-stats-table">
+                            <tbody>
+                                <tr class="table-section-title">
+                                    <td colspan="2">Métricas Generales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total de Servicios Prestados</strong></td>
+                                    <td class="align-right">460</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Monto Total Generado</strong></td>
+                                    <td class="align-right" style="font-size: 1.1rem; color: #28a745; font-weight: bold;">$440,839.00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ticket Promedio por Pedido</strong></td>
+                                    <td class="align-right">$958.34</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Día de Mayor Actividad</strong></td>
+                                    <td class="align-right">Miércoles</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Servicio más Rentable</strong></td>
+                                    <td class="align-right">Tintorería</td>
+                                </tr>
+
+                                <tr class="table-section-title">
+                                    <td colspan="2">Desglose por Tipo de Servicio</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="color-box" style="background: #007bff; display: inline-block;"></span> Lavado (Volumen / Monto)</td>
+                                    <td class="align-right">210 serv. / $120,500.00</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="color-box" style="background: #fd7e14; display: inline-block;"></span> Tintorería (Volumen / Monto)</td>
+                                    <td class="align-right">150 serv. / $280,000.00</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="color-box" style="background: #e83e8c; display: inline-block;"></span> Planchado (Volumen / Monto)</td>
+                                    <td class="align-right">100 serv. / $40,339.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

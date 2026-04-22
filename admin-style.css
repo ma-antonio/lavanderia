@@ -767,3 +767,479 @@
         width: 100%;
     }
 }
+
+/* =========================================
+   MÓDULO: BÚSQUEDA DE HISTORIAL DE CLIENTES
+   ========================================= */
+
+/* Formulario en línea para buscar rápido */
+.search-inline-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 150px; /* 3 inputs iguales y 1 botón al final */
+    gap: 15px;
+    align-items: end; /* Alinea el botón con la base de los inputs */
+}
+
+/* Margen superior utilitario */
+.mt-20 {
+    margin-top: 20px;
+}
+
+.customer-found-label {
+    font-size: 0.9rem;
+    color: #495057;
+    background-color: #e9ecef;
+    padding: 5px 12px;
+    border-radius: 3px;
+    border: 1px solid #ced4da;
+}
+
+/* Responsividad para la barra de búsqueda */
+@media (max-width: 900px) {
+    .search-inline-form {
+        grid-template-columns: 1fr; /* Colapsa a 1 columna en pantallas chicas */
+    }
+    .customer-found-label {
+        display: block;
+        margin-top: 10px;
+    }
+}
+
+/* =========================================
+   MÓDULO: INVENTARIO OPERATIVO
+   ========================================= */
+
+/* Estadísticas del Inventario en Header */
+.inventory-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-badge {
+    background-color: #f8f9fa;
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 0.85rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+    font-weight: bold;
+}
+
+/* Tabla de Inventario */
+.inventory-table td {
+    padding: 10px 8px; /* Un poco más de espacio vertical que la tabla de pedidos */
+}
+
+/* Filas críticas (Agotado) */
+.row-critical {
+    background-color: #f8d7da !important; /* Rojo pálido de alerta */
+}
+
+.row-critical td {
+    color: #721c24;
+}
+
+/* Pastillas de Estado (Status Pills) */
+.status-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-ok {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-low {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-empty {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Botón de eliminar (Funcionalidad de peligro) */
+.btn-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger:hover {
+    background-color: #bd2130 !important;
+}
+
+/* Ajuste para tabla visualmente extensa */
+.inventory-table {
+    min-width: 1000px; /* Asegura el rango visual amplio */
+}
+
+/* =========================================
+   MÓDULO: GENERACIÓN DE TICKET
+   ========================================= */
+
+.ticket-preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e9ecef; /* Fondo oscuro para contrastar el "papel" */
+    padding: 40px 20px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    margin-top: 10px;
+}
+
+/* Simulación de papel térmico de ticket */
+.ticket-paper {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 380px;
+    padding: 30px 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 1px solid #dee2e6;
+    color: #212529;
+}
+
+.ticket-brand {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 2px dashed #ced4da;
+    padding-bottom: 15px;
+}
+
+.ticket-brand h2 {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    color: #343a40;
+}
+
+.ticket-info {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    color: #495057;
+    line-height: 1.5;
+}
+
+/* Tabla interna del ticket */
+.ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.ticket-table th {
+    border-bottom: 1px solid #343a40;
+    padding-bottom: 8px;
+    font-weight: bold;
+    color: #212529;
+}
+
+.ticket-table td {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.ticket-table tfoot td {
+    border-bottom: none;
+    border-top: 2px solid #343a40;
+}
+
+/* Sección del Código QR */
+.ticket-qr-section {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px dashed #ced4da;
+}
+
+.qr-placeholder {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 15px auto;
+    background-color: #f8f9fa;
+    border: 2px solid #343a40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.qr-help-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+/* Acciones debajo del ticket */
+.ticket-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.ticket-btn-primary {
+    flex: 2;
+    margin-top: 0; /* Anula el margen del estilo general */
+}
+
+.ticket-btn-secondary {
+    flex: 1;
+    background-color: #e2e6ea;
+    color: #333;
+    border: 1px solid #dae0e5;
+}
+
+.ticket-btn-secondary:hover {
+    background-color: #d3d9df;
+}
+
+@media (max-width: 600px) {
+    .ticket-actions {
+        flex-direction: column;
+    }
+}
+
+/* =========================================
+   MÓDULO: ESTADÍSTICAS Y GRÁFICAS
+   ========================================= */
+
+/* Contenedor preparado para la futura gráfica JS */
+.chart-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border: 2px dashed #ced4da;
+    border-radius: 4px;
+    padding: 30px;
+    margin-top: 15px;
+    min-height: 350px;
+}
+
+/* Simulación visual de un gráfico de anillo (Donut) usando puro CSS */
+.chart-mockup-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #007bff 0% 45%,   /* Azul - Lavado */
+        #fd7e14 45% 85%,  /* Naranja - Tintorería */
+        #e83e8c 85% 100%  /* Rosa - Planchado */
+    );
+    margin-bottom: 20px;
+    /* Hueco central para hacer el efecto de anillo */
+    mask-image: radial-gradient(circle, transparent 40%, black 41%);
+    -webkit-mask-image: radial-gradient(circle, transparent 40%, black 41%);
+}
+
+.chart-mockup-text {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* Leyenda del gráfico */
+.chart-legend {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.color-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Tabla de Resumen Estadístico */
+.summary-stats-table td {
+    padding: 12px 10px; /* Un poco más de aire para mejor legibilidad */
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table-section-title td {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #495057;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+}
+
+@media (max-width: 900px) {
+    .admin-content-grid {
+        grid-template-columns: 1fr; /* Colapsar a 1 columna en pantallas pequeñas */
+    }
+}
+
+/* =========================================
+   MÓDULO: CONSUMO DE INSUMOS
+   ========================================= */
+
+/* Parámetros de Reporte (Filtros) */
+.report-filter-grid {
+    display: grid;
+    /* Columnas automáticas con un mínimo de 180px */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Área de Gráficas */
+.consumption-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Lado a lado */
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.chart-container {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.chart-container h4 {
+    font-size: 1rem;
+    color: #495057;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Marcadores de posición para Chart.js */
+.chart-mockup-bar,
+.chart-mockup-pie {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+    background-color: #fff;
+    border: 1px dashed #ced4da;
+    border-radius: 4px;
+}
+
+.chart-mockup-text {
+    color: #adb5bd;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Tabla de Consumo */
+.consumption-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.consumption-table td {
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.consumption-table tr:last-child td {
+    border-bottom: none;
+}
+
+.consumption-table tfoot th {
+    background-color: transparent;
+    border-top: none;
+    padding: 8px 10px;
+    color: #495057;
+}
+
+.consumption-table tfoot tr:first-child th {
+    border-top: 2px solid #343a40;
+}
+
+/* Total General Destacado */
+.grand-total-highlight {
+    background-color: var(--admin-primary); /* Royal Blue corporativo */
+    color: #fff;
+    padding: 20px 30px;
+    border-radius: 4px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grand-total-highlight span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.grand-total-highlight .total-price {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Acciones Inferiores (Zona de botones) */
+.finance-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    justify-content: center; /* Centrar botones */
+}
+
+/* Reutilizar clases de botones de ticket */
+.ticket-btn-primary {
+    width: auto;
+    padding: 12px 30px;
+}
+
+.ticket-btn-secondary {
+    width: auto;
+    padding: 12px 30px;
+}
+
+/* Responsividad */
+@media (max-width: 900px) {
+    .consumption-charts-grid {
+        grid-template-columns: 1fr; /* Colapsar a 1 columna */
+    }
+    .grand-total-highlight {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
