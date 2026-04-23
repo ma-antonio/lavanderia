@@ -1243,3 +1243,195 @@
         text-align: center;
     }
 }
+
+/* =========================================
+   MÓDULO: LOGÍSTICA Y ENVÍOS
+   ========================================= */
+
+/* Estilos de la tabla logística */
+.logistics-table td {
+    vertical-align: middle;
+    padding: 12px 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Celda de dirección (Para manejar mucho texto sin romper el diseño) */
+.address-cell {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.address-cell:hover {
+    /* Expande el texto si el empleado pasa el mouse encima */
+    white-space: normal; 
+    word-wrap: break-word;
+}
+
+/* Texto secundario atenuado */
+.text-muted {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Fila de alerta (Retraso) */
+.row-warning {
+    background-color: #fff3cd; /* Amarillo muy pálido para alertar sin ser agresivo */
+}
+
+/* Pastillas de Estado Logístico (Pills) */
+.logistics-transit {
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #b8daff;
+}
+
+.logistics-delayed {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    animation: blink 3s infinite; /* Animación de parpadeo suave que definimos antes */
+}
+
+.logistics-pending {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.logistics-delivered {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* =========================================
+   MÓDULO: CENTRO DE NOTIFICACIONES
+   ========================================= */
+
+/* Indicador pequeño en el menú lateral */
+.badge-danger-small {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Lista de Notificaciones */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Separación muy sutil para mantener densidad */
+}
+
+/* Diseño de cada ítem de notificación */
+.notif-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-left-width: 5px; /* Borde izquierdo grueso para indicar prioridad */
+    border-radius: 4px;
+    padding: 15px 20px;
+    transition: box-shadow 0.2s;
+}
+
+.notif-item:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Estado No Leído */
+.notif-unread {
+    background-color: #f8fbfd; /* Tinte muy sutil azul pálido */
+}
+
+.notif-unread .notif-title {
+    font-weight: bold;
+}
+
+/* Colores de Prioridad (Bordes) */
+.notif-high { border-left-color: #dc3545; }   /* Rojo - Urgente */
+.notif-medium { border-left-color: #fd7e14; } /* Naranja - Medio */
+.notif-low { border-left-color: #0d6efd; }    /* Azul - Informativo */
+
+/* Contenido Interno */
+.notif-content {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.notif-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.notif-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.notif-title {
+    font-size: 1rem;
+    color: #212529;
+    margin-bottom: 5px;
+}
+
+.notif-desc {
+    font-size: 0.9rem;
+    color: #495057;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.notif-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background-color: #e9ecef;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+/* Pastillas indicadoras del Módulo */
+.badge-module {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.badge-inventory { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+.badge-logistics { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+.badge-finance { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.badge-system { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+/* Botones de Acción (Lado Derecho) */
+.notif-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Responsividad para móviles o tablets */
+@media (max-width: 768px) {
+    .notif-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .notif-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

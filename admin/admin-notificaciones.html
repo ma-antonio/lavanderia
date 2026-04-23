@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - ERP Lavandería</title>
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">🏠 Panel Principal</a></li>
+                    <li><a href="admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="admin-envios.html">🚚 Logística y Envíos</a></li>
+                    <li><a href="admin-estadisticas.html">📈 Estadísticas de Servicios</a></li>
+                    <li><a href="#" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small">3</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h1>Centro de Notificaciones</h1>
+                    <span class="stat-badge alert-danger">3 No leídas</span>
+                </div>
+                <p class="subtitle">Bandeja de entrada operativa: alertas del sistema, problemas de logística e inventario.</p>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="toolbar-group">
+                    <select class="filter-select">
+                        <option value="fecha_desc">Ordenar por: Más recientes</option>
+                        <option value="prioridad">Ordenar por: Prioridad (Alta primero)</option>
+                    </select>
+                    
+                    <select class="filter-select">
+                        <option value="todos">Cualquier Responsable</option>
+                        <option value="mis_tareas">Solo mis alertas</option>
+                        <option value="gerencia">Gerencia</option>
+                        <option value="logistica">Logística</option>
+                    </select>
+
+                    <select class="filter-select">
+                        <option value="todas">Todos los Módulos</option>
+                        <option value="inventario">Inventario</option>
+                        <option value="pedidos">Pedidos Atorados</option>
+                        <option value="sistema">Sistema</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button type="button" class="btn-util">Marcar todo como leído</button>
+                </div>
+            </div>
+
+            <div class="notification-list">
+                
+                <div class="notif-item notif-unread notif-high">
+                    <div class="notif-content">
+                        <div class="notif-header">
+                            <span class="badge-module badge-inventory">Inventario</span>
+                            <span class="notif-time">Hace 10 min</span>
+                        </div>
+                        <h4 class="notif-title">Stock Crítico: Solvente Percloroetileno Agotado</h4>
+                        <p class="notif-desc">El inventario de este insumo ha llegado a 0. Las órdenes de Tintorería no pueden procesarse.</p>
+                        <div class="notif-meta">
+                            <span><strong>Responsable:</strong> Compras / Gerencia</span>
+                        </div>
+                    </div>
+                    <div class="notif-actions">
+                        <button type="button" class="btn-action btn-primary">Ir a Inventario</button>
+                        <button type="button" class="btn-icon-success" title="Marcar como resuelto">✔</button>
+                    </div>
+                </div>
+
+                <div class="notif-item notif-unread notif-high">
+                    <div class="notif-content">
+                        <div class="notif-header">
+                            <span class="badge-module badge-logistics">Logística</span>
+                            <span class="notif-time">Hace 45 min</span>
+                        </div>
+                        <h4 class="notif-title">Pedido F-045 Retrasado más de 2 horas</h4>
+                        <p class="notif-desc">El repartidor asignado reporta avería en el vehículo. El cliente María Fernanda Ruiz está esperando.</p>
+                        <div class="notif-meta">
+                            <span><strong>Responsable:</strong> Despachador en turno</span>
+                        </div>
+                    </div>
+                    <div class="notif-actions">
+                        <button type="button" class="btn-action btn-primary">Ver Pedido</button>
+                        <button type="button" class="btn-icon-success" title="Marcar como resuelto">✔</button>
+                    </div>
+                </div>
+
+                <div class="notif-item notif-unread notif-medium">
+                    <div class="notif-content">
+                        <div class="notif-header">
+                            <span class="badge-module badge-finance">Finanzas</span>
+                            <span class="notif-time">Hace 2 horas</span>
+                        </div>
+                        <h4 class="notif-title">Discrepancia de Caja Detectada</h4>
+                        <p class="notif-desc">El corte de caja del turno matutino reporta un faltante de $150.00 MXN.</p>
+                        <div class="notif-meta">
+                            <span><strong>Responsable:</strong> Gerencia / Auditoría</span>
+                        </div>
+                    </div>
+                    <div class="notif-actions">
+                        <button type="button" class="btn-action btn-primary">Ver Reporte</button>
+                        <button type="button" class="btn-icon-success" title="Marcar como resuelto">✔</button>
+                    </div>
+                </div>
+
+                <div class="notif-item notif-low">
+                    <div class="notif-content">
+                        <div class="notif-header">
+                            <span class="badge-module badge-system">Sistema</span>
+                            <span class="notif-time">Ayer, 23:00 hrs</span>
+                        </div>
+                        <h4 class="notif-title">Respaldo de Base de Datos Exitoso</h4>
+                        <p class="notif-desc">El sistema completó el respaldo automático diario de transacciones sin errores.</p>
+                        <div class="notif-meta">
+                            <span><strong>Responsable:</strong> TI (Automático)</span>
+                        </div>
+                    </div>
+                    <div class="notif-actions">
+                        <button type="button" class="btn-util" disabled>Archivado</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

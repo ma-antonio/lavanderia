@@ -1225,3 +1225,465 @@ body {
         text-align: center;
     }
 }
+
+/* =========================================
+   VISTA DE DISPONIBILIDAD (CLIENTE)
+   ========================================= */
+
+.availability-hero {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.branch-selector-wrapper {
+    margin-top: 25px;
+}
+
+.custom-select {
+    padding: 12px 20px;
+    border: 2px solid #e1e8f0;
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: #162660; /* Royal Blue */
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.custom-select:focus {
+    border-color: #162660;
+    box-shadow: 0 0 10px rgba(22, 38, 96, 0.1);
+}
+
+/* Cuadrícula de Zonas */
+.zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding-bottom: 50px;
+}
+
+.zone-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    border: 1px solid #f0f3f7;
+    transition: transform 0.3s;
+}
+
+.zone-card:hover {
+    transform: translateY(-5px);
+}
+
+.zone-header h2 {
+    font-size: 1.1rem;
+    color: #162660;
+    margin-bottom: 5px;
+}
+
+.capacity-tag {
+    font-size: 0.8rem;
+    color: #8a99af;
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Indicadores de Estado de la Zona */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    border-radius: 10px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Clases Dinámicas de Estado */
+.libre { background: #e8f5e9; color: #2e7d32; }
+.libre .status-dot { background: #4caf50; }
+
+.carga-normal { background: #fff8e1; color: #f57f17; }
+.carga-normal .status-dot { background: #ffca28; }
+
+.congestionado { background: #ffebee; color: #c62828; }
+.congestionado .status-dot { background: #ef5350; }
+
+/* Visualización de Máquinas Individuales */
+.machines-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.machine {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid;
+}
+
+.machine.available {
+    background: #ffffff;
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+.machine.busy {
+    background: #f1f3f5;
+    border-color: #dee2e6;
+    color: #adb5bd;
+    position: relative;
+}
+
+.machine.busy::after {
+    content: '✖';
+    font-size: 0.6rem;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #8a99af;
+    color: white;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================================
+   MÓDULO DE PAQUETES (PRICING CARDS)
+   ========================================= */
+
+.packages-hero {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 40px;
+}
+
+.packages-hero h1 {
+    color: var(--primary-color);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.packages-hero p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Cuadrícula de Precios */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+    padding-bottom: 60px;
+    align-items: center; /* Alinea las tarjetas al centro para destacar la popular */
+}
+
+/* Diseño de la Tarjeta */
+.pricing-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid #e1e8f0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Para que todas midan lo mismo */
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+/* Paquete Destacado (Premium) */
+.popular-card {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 10px 25px rgba(22, 38, 96, 0.15);
+    transform: scale(1.05); /* Lo hace ligeramente más grande */
+    z-index: 1;
+}
+
+.popular-card:hover {
+    transform: scale(1.05) translateY(-10px);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: #fff;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Cabecera del Precio */
+.pricing-header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #e1e8f0;
+}
+
+.pricing-header h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.currency {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.period {
+    font-size: 1rem;
+    color: #8a99af;
+    font-weight: 400;
+    margin-left: 5px;
+}
+
+.pricing-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* Lista de Características (Desglose) */
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 30px;
+    flex-grow: 1; /* Empuja el botón hacia abajo */
+}
+
+.pricing-features li {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.check {
+    color: #4caf50; /* Verde */
+    font-weight: bold;
+}
+
+.cross {
+    color: #adb5bd; /* Gris */
+    font-weight: bold;
+}
+
+.pricing-features li.disabled {
+    color: #adb5bd;
+    text-decoration: line-through;
+}
+
+/* Botones de las Tarjetas */
+.btn-pricing {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0c1844;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Responsividad */
+@media (max-width: 900px) {
+    .pricing-grid {
+        align-items: stretch; /* En móviles todas miden lo mismo */
+    }
+    .popular-card {
+        transform: scale(1); /* Quitamos el zoom extra en móviles */
+    }
+    .popular-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
+/* =========================================
+   MÓDULO DE GUÍAS DE USO
+   ========================================= */
+
+.guides-hero {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+}
+
+.guides-hero h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.guides-hero p {
+    color: #666;
+    font-size: 1.05rem;
+}
+
+/* Layout de dos columnas grandes */
+.guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 40px;
+    padding-bottom: 60px;
+}
+
+/* Tarjeta contenedora principal (Borde gris claro del mockup) */
+.guide-category-card {
+    background-color: #ffffff;
+    border: 1px solid #d1d9e6;
+    border-radius: 12px;
+    padding: 35px 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.guide-category-card h2 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* Tarjetas individuales de cada paso */
+.guide-item {
+    background-color: #ffffff;
+    border: 1px solid #e1e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guide-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+.guide-item h3 {
+    font-size: 1.05rem;
+    color: #212529;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Contenedor de Botones */
+.guide-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap; /* Permite que bajen de línea en celulares muy pequeños */
+}
+
+/* Estilos compartidos de los botones de guía */
+.btn-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 20px; /* Bordes redondeados como en el mockup */
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Botón PDF (Gris Neutro) */
+.btn-pdf {
+    background-color: #e2e8f0;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-pdf:hover {
+    background-color: #cbd5e1;
+    color: #1e293b;
+}
+
+/* Botón Video (Azul Multimedia Brillante) */
+.btn-video {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+}
+
+.btn-video:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .guides-grid {
+        grid-template-columns: 1fr; /* Colapsa a una sola columna en móviles */
+    }
+    .guide-category-card {
+        padding: 25px 15px;
+    }
+}

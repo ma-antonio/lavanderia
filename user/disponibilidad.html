@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidad de Máquinas | Lavandería</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">LAVANDERIA</span>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#">Inicio</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                    <li><a href="sucursales.html">Sucursales</a></li>
+                    <li><a href="perfil.html">Mi Cuenta</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="availability-hero">
+            <h1>Estado de la Sucursal</h1>
+            <p>Consulta la ocupación de nuestras máquinas antes de visitarnos.</p>
+            
+            <div class="branch-selector-wrapper">
+                <label for="branch-select">Selecciona una sucursal:</label>
+                <select id="branch-select" class="custom-select">
+                    <option value="salamanca">Sucursal Salamanca</option>
+                    <option value="hegel">Sucursal Hegel</option>
+                    <option value="moliere">Sucursal Moliere</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="zones-grid">
+            
+            <section class="zone-card">
+                <div class="zone-header">
+                    <h2>Zona A: Máquinas Pequeñas</h2>
+                    <span class="capacity-tag">Capacidad: 6kg - 9kg</span>
+                </div>
+                <div class="status-indicator congestionado">
+                    <span class="status-dot"></span> Congestionado
+                </div>
+                <div class="machines-display">
+                    <div class="machine busy"><span>1</span></div>
+                    <div class="machine busy"><span>2</span></div>
+                    <div class="machine busy"><span>3</span></div>
+                    <div class="machine available"><span>4</span></div>
+                </div>
+            </section>
+
+            <section class="zone-card">
+                <div class="zone-header">
+                    <h2>Zona B: Máquinas Medianas</h2>
+                    <span class="capacity-tag">Capacidad: 10kg - 15kg</span>
+                </div>
+                <div class="status-indicator carga-normal">
+                    <span class="status-dot"></span> Carga Normal
+                </div>
+                <div class="machines-display">
+                    <div class="machine available"><span>1</span></div>
+                    <div class="machine available"><span>2</span></div>
+                    <div class="machine busy"><span>3</span></div>
+                    <div class="machine available"><span>4</span></div>
+                </div>
+            </section>
+
+            <section class="zone-card">
+                <div class="zone-header">
+                    <h2>Zona C: Máquinas Grandes</h2>
+                    <span class="capacity-tag">Capacidad: 18kg - 25kg</span>
+                </div>
+                <div class="status-indicator libre">
+                    <span class="status-dot"></span> Libre
+                </div>
+                <div class="machines-display">
+                    <div class="machine available"><span>1</span></div>
+                    <div class="machine available"><span>2</span></div>
+                </div>
+            </section>
+
+            <section class="zone-card">
+                <div class="zone-header">
+                    <h2>Zona D: Secadoras</h2>
+                    <span class="capacity-tag">Temperatura Dual</span>
+                </div>
+                <div class="status-indicator carga-normal">
+                    <span class="status-dot"></span> Carga Normal
+                </div>
+                <div class="machines-display">
+                    <div class="machine available"><span>1</span></div>
+                    <div class="machine busy"><span>2</span></div>
+                    <div class="machine busy"><span>3</span></div>
+                    <div class="machine available"><span>4</span></div>
+                    <div class="machine available"><span>5</span></div>
+                    <div class="machine available"><span>6</span></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+</html>
