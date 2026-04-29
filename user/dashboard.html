@@ -53,10 +53,7 @@
                     <h1 class="main-title" id="dash-nombre-usuario">Cargando...</h1>
                     <p class="wallet-id">Tarjeta ID: <strong id="dash-tarjeta-id">Cargando...</strong></p>
                     <p class="wallet-date" id="dash-tarjeta-fecha">Última Verificación: --</p>
-                    <p class="balance-amount" id="dash-saldo-actual">$0.00 MXN</p>
-                    
-                    <tbody id="dash-tabla-historial">
-                    </tbody>
+                    <p class="balance-amount" id="dash-saldo-actual">$0.00 MXN</p> 
                 </div>
                 
             </div>
@@ -77,98 +74,85 @@
                             <th>Fecha y Hora (Registro)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>[P-000]</td>
-                            <td>[Nombre del Cliente]</td>
-                            <td>[Tipo de Servicio]</td>
-                            <td><span class="status-badge">[Estado]</span></td>
-                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
-                            <td>[DD Mes AAAA HH:MM AM]</td>
-                        </tr>
-                        <tr>
-                            <td>[P-000]</td>
-                            <td>[Nombre del Cliente]</td>
-                            <td>[Tipo de Servicio]</td>
-                            <td><span class="status-badge">[Estado]</span></td>
-                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
-                            <td>[DD Mes AAAA HH:MM AM]</td>
-                        </tr>
-                        <tr>
-                            <td>[P-000]</td>
-                            <td>[Nombre del Cliente]</td>
-                            <td>[Tipo de Servicio]</td>
-                            <td><span class="status-badge">[Estado]</span></td>
-                            <td>[Detalle del Ciclo / Fecha y Hora / Proceso]</td>
-                            <td>[DD Mes AAAA HH:MM AM]</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="dash-tabla-historial">
+                        </tbody>
                 </table>
             </div>
         </section>
 
     </main>
+
     <script>
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Verificación de seguridad: Redirigir al login si no hay sesión activa
-    const idCliente = localStorage.getItem('id_cliente');
-    if (!idCliente) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    try {
-        // 2. Obtener los datos del servidor
-        const respuesta = await fetch(`/api/dashboard/${idCliente}`);
-        const datos = await respuesta.json();
-
-        if (respuesta.ok) {
-            const { cliente, historial } = datos;
-
-            // 3. Inyectar datos personales y del monedero
-            document.getElementById('dash-nombre-usuario').textContent = `Hola, ${cliente.nombre_cliente} 👋`;
-            
-            document.getElementById('dash-tarjeta-id').textContent = cliente.codigo_tarjeta || 'Sin asignar';
-            
-            const saldo = cliente.saldo_actual ? parseFloat(cliente.saldo_actual).toFixed(2) : '0.00';
-            document.getElementById('dash-saldo-actual').textContent = `$${saldo} MXN`;
-            
-            if (cliente.ultima_actualizacion) {
-                const fechaActualizacion = new Date(cliente.ultima_actualizacion).toLocaleString('es-MX');
-                document.getElementById('dash-tarjeta-fecha').textContent = `Última Verificación: ${fechaActualizacion}`;
-            }
-
-            // 4. Inyectar el historial de pedidos dinámicamente
-            const tablaHistorial = document.getElementById('dash-tabla-historial');
-            tablaHistorial.innerHTML = ''; // Limpiamos el contenido previo
-
-            if (historial.length === 0) {
-                tablaHistorial.innerHTML = `<tr><td colspan="6" style="text-align: center;">Aún no tienes pedidos registrados.</td></tr>`;
-            } else {
-                historial.forEach(pedido => {
-                    const fechaRegistro = new Date(pedido.fecha_recepcion).toLocaleString('es-MX');
-                    
-                    // Creamos una nueva fila para cada pedido
-                    const fila = document.createElement('tr');
-                    fila.innerHTML = `
-                        <td>P-${pedido.id_pedido.toString().padStart(3, '0')}</td>
-                        <td>${cliente.nombre_cliente} ${cliente.apellidos_cliente}</td>
-                        <td>Servicio General</td>
-                        <td><span class="status-badge">${pedido.estado_lavado}</span></td>
-                        <td>${pedido.notas_especiales || 'Sin detalles'}</td>
-                        <td>${fechaRegistro}</td>
-                    `;
-                    tablaHistorial.appendChild(fila);
-                });
-            }
-        } else {
-            console.error(datos.error);
-            alert("Error al cargar la información del panel.");
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 1. Verificación de seguridad
+        const idCliente = localStorage.getItem('id_cliente');
+        if (!idCliente) {
+            window.location.href = 'login.html';
+            return;
         }
-    } catch (error) {
-        console.error("Hubo un problema de conexión:", error);
-    }
-});
-</script>
+
+        try {
+            // 2. Petición al servidor
+            const respuesta = await fetch(`/api/dashboard/${idCliente}`);
+            const datos = await respuesta.json();
+
+            // Impresión en consola para que audites qué devuelve exactamente tu base de datos
+            console.log("Datos recibidos del servidor:", datos);
+
+            if (respuesta.ok) {
+                const { cliente, historial } = datos;
+
+                // 3A. Actualizar el saludo superior sin usar ID (usando el selector de la clase)
+                const welcomeTitle = document.querySelector('.welcome-block .main-title');
+                if (welcomeTitle) {
+                    welcomeTitle.textContent = `Hola, ${cliente.nombre_cliente} 👋`;
+                }
+
+                // 3B. Inyectar datos en la tarjeta recargable
+                document.getElementById('dash-nombre-usuario').textContent = `${cliente.nombre_cliente} ${cliente.apellidos_cliente}`;
+                document.getElementById('dash-tarjeta-id').textContent = cliente.codigo_tarjeta || 'Sin asignar';
+                
+                const saldo = cliente.saldo_actual ? parseFloat(cliente.saldo_actual).toFixed(2) : '0.00';
+                document.getElementById('dash-saldo-actual').textContent = `$${saldo} MXN`;
+                
+                if (cliente.ultima_actualizacion) {
+                    const fechaActualizacion = new Date(cliente.ultima_actualizacion).toLocaleString('es-MX');
+                    document.getElementById('dash-tarjeta-fecha').textContent = `Última Verificación: ${fechaActualizacion}`;
+                }
+
+                // 4. Inyectar el historial de pedidos dinámicamente
+                const tablaHistorial = document.getElementById('dash-tabla-historial');
+                tablaHistorial.innerHTML = ''; 
+
+                // Validación robusta: Comprobamos que 'historial' exista y sea un arreglo
+                if (!historial || historial.length === 0) {
+                    tablaHistorial.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Aún no tienes pedidos registrados en el sistema.</td></tr>`;
+                } else {
+                    historial.forEach(pedido => {
+                        // Evitamos errores si la fecha viene nula
+                        const fechaRegistro = pedido.fecha_recepcion 
+                            ? new Date(pedido.fecha_recepcion).toLocaleString('es-MX') 
+                            : 'Fecha no disponible';
+                        
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                            <td><strong>P-${String(pedido.id_pedido).padStart(3, '0')}</strong></td>
+                            <td>${cliente.nombre_cliente} ${cliente.apellidos_cliente}</td>
+                            <td>Servicio General</td>
+                            <td><span class="status-badge">${pedido.estado_lavado || 'Pendiente'}</span></td>
+                            <td>${pedido.notas_especiales || 'Sin detalles'}</td>
+                            <td>${fechaRegistro}</td>
+                        `;
+                        tablaHistorial.appendChild(fila);
+                    });
+                }
+            } else {
+                console.error("Error del servidor:", datos.error);
+            }
+        } catch (error) {
+            console.error("Hubo un problema de conexión al intentar renderizar el panel:", error);
+        }
+    });
+    </script>
 </body>
 </html>
