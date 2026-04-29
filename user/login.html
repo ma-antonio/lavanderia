@@ -39,13 +39,13 @@
             <form action="" method="">
                 <div class="form-row">
                     <div class="input-group">
-                        <label for="username">Nombre de Usuario o Número de Teléfono:</label>
-                        <input type="text" id="username" name="username" placeholder="55 1234 5678" required>
+                        <label for="username">Correo:</label>
+                        <input type="text" id="login-correo" name="username" placeholder="correo@ejemplo.com" required>
                     </div>
 
                     <div class="input-group">
                         <label for="password">Contraseña:</label>
-                        <input type="password" id="password" name="password" placeholder="**********" required>
+                        <input type="password" id="login-password" name="password" placeholder="**********" required>
                     </div>
                 </div>
                 
@@ -55,6 +55,36 @@
             </form>
         </div>
     </main>
+<script>
+// Archivo: user/login.html
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
+    const datos = {
+        correo: document.getElementById('login-correo').value,
+        password: document.getElementById('login-password').value
+    };
+
+    try {
+        const respuesta = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            // Guardamos la sesión localmente
+            localStorage.setItem('id_cliente', resultado.id_cliente);
+            window.location.href = 'dashboard.html';
+        } else {
+            alert(resultado.error);
+        }
+    } catch (error) {
+        alert("Error al intentar iniciar sesión.");
+    }
+});
+</script>
 </body>
 </html>

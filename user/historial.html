@@ -48,7 +48,7 @@
                         <th>Fecha</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="historial-tabla">
                     <tr>
                         <td><strong>[P-001]</strong></td>
                         <td>[Tipo de Servicio Ej. Lavado]</td>
@@ -102,6 +102,54 @@
             </table>
         </div>
     </main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Verificación de seguridad: Redirigir al login si no hay sesión activa
+    const idCliente = localStorage.getItem('id_cliente');
+    if (!idCliente) {
+        window.location.href = 'login.html';
+        return;
+    }
 
+    // 2. Obtener los datos del historial completo
+    try {
+        const respuesta = await fetch(`/api/historial/${idCliente}`);
+        const historial = await respuesta.json();
+
+        if (respuesta.ok) {
+            const tabla = document.getElementById('historial-tabla');
+            tabla.innerHTML = ''; // Limpiamos cualquier rastro previo
+
+            if (historial.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aún no tienes pedidos en tu historial.</td></tr>`;
+            } else {
+                historial.forEach(pedido => {
+                    // Formatear la fecha para que se vea legible (DD/MM/AAAA)
+                    const fecha = new Date(pedido.fecha_recepcion).toLocaleDateString('es-MX');
+                    
+                    // Ajustar color del badge según el estado (Opcional, mejora visual)
+                    let badgeClass = 'status-badge';
+                    if(pedido.estado_lavado === 'Entregado') badgeClass += ' badge-active'; // Puedes cambiar la clase CSS según el estado
+                    
+                    // Construir la fila dinámica
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td><strong>P-${pedido.id_pedido.toString().padStart(3, '0')}</strong></td>
+                        <td>${pedido.notas_especiales || 'Servicio General'}</td>
+                        <td>${pedido.nombre_sucursal}</td>
+                        <td><span class="${badgeClass}">${pedido.estado_lavado}</span></td>
+                        <td>${fecha}</td>
+                    `;
+                    tabla.appendChild(fila);
+                });
+            }
+        } else {
+            alert("Error al cargar el historial.");
+        }
+    } catch (error) {
+        console.error("Problema de conexión con el servidor:", error);
+    }
+});
+</script>
 </body>
 </html>
