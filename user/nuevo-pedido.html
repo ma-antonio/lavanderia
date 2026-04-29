@@ -192,6 +192,72 @@
             </form>
         </div>
     </main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Verificación de seguridad
+    const idCliente = localStorage.getItem('id_cliente');
+    if (!idCliente) {
+        window.location.href = 'login.html';
+        return;
+    }
 
+    // 2. Autocompletar los datos del cliente logueado
+    try {
+        // Reutilizamos la ruta que ya tenías para el dashboard
+        const respuesta = await fetch(`/api/cliente/${idCliente}`);
+        if (respuesta.ok) {
+            const cliente = await respuesta.json();
+            document.getElementById('nombre').value = `${cliente.nombre_cliente} ${cliente.apellidos_cliente}`;
+            if (cliente.telefono_contacto) {
+                document.getElementById('telefono').value = cliente.telefono_contacto;
+            }
+        }
+    } catch (error) {
+        console.error("No se pudieron precargar los datos del cliente.");
+    }
+
+    // 3. Capturar el envío del formulario
+    document.querySelector('.order-form').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Evitamos que la página se recargue
+
+        // Recolectamos los IDs y los inputs tipo "radio" o "checkbox"
+        const datosPedido = {
+            id_cliente: idCliente,
+            id_sucursal: document.getElementById('sucursal').value,
+            servicio: document.getElementById('servicio').value,
+            kilos: document.getElementById('kilos').value,
+            direccion_entrega: document.getElementById('direccion').value,
+            
+            // Para los inputs que son opciones múltiples (radios y checkboxes)
+            detergente: document.querySelector('input[name="detergente"]:checked').value,
+            suavizante: document.querySelector('input[name="suavizante"]:checked').value,
+            entrega: document.querySelector('input[name="entrega"]:checked').value,
+            pago: document.querySelector('input[name="pago"]:checked').value,
+            express: document.querySelector('input[name="express"]').checked
+        };
+
+        try {
+            const respuesta = await fetch('/api/pedidos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosPedido)
+            });
+
+            const resultado = await respuesta.json();
+
+            if (respuesta.ok) {
+                // Notificamos el éxito y lo enviamos al historial
+                alert(`¡Pedido registrado exitosamente! \nTu número de seguimiento es: P-${String(resultado.id_pedido).padStart(3, '0')}`);
+                window.location.href = 'historial.html'; 
+            } else {
+                alert(resultado.error);
+            }
+        } catch (error) {
+            console.error("Error conectando con el servidor:", error);
+            alert("Hubo un problema al procesar el pedido. Revisa tu conexión.");
+        }
+    });
+});
+</script>
 </body>
 </html>

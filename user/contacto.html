@@ -20,12 +20,12 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#">Inicio</a></li>
+                    <li><a href="dashboard.html">Inicio</a></li>
                     <li><a href="servicios.html">Servicios</a></li>
                     <li><a href="sucursales.html">Sucursales</a></li>
-                    <li><a href="#">Mi Cuenta</a></li>
+                    <li><a href="perfil.html">Mi Cuenta</a></li>
                     <li><a href="#" class="active-nav">Contacto</a></li>
-                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
                 </ul>
             </nav>
         </div>
@@ -42,39 +42,39 @@
             <section class="contact-info">
                 <h3>Sede y Oficinas</h3>
                 <div class="info-block">
-                    <p><strong>📍 Dirección:</strong> [Calle, Número, Colonia, C.P., Ciudad, Estado]</p>
-                    <p><strong>📞 Teléfono:</strong> [55 0000 0000]</p>
+                    <p><strong>📍 Dirección:</strong> Calle Hegel 456, Polanco, 11560, Ciudad de México, CDMX</p>
+                    <p><strong>📞 Teléfono:</strong> 55 9876 5432</p>
                 </div>
 
                 <div class="info-block">
                     <h3>Departamentos</h3>
                     <ul class="department-list">
-                        <li><strong>Administración:</strong> <a href="#">[admin@lavanderia.com]</a></li>
-                        <li><strong>Compras:</strong> <a href="#">[compras@lavanderia.com]</a></li>
-                        <li><strong>Ventas:</strong> <a href="#">[ventas@lavanderia.com]</a></li>
-                        <li><strong>Calidad:</strong> <a href="#">[calidad@lavanderia.com]</a></li>
+                        <li><strong>Administración:</strong> <a href="mailto:admin@lavanderia.com">admin@lavanderia.com</a></li>
+                        <li><strong>Compras:</strong> <a href="mailto:compras@lavanderia.com">compras@lavanderia.com</a></li>
+                        <li><strong>Ventas:</strong> <a href="mailto:ventas@lavanderia.com">ventas@lavanderia.com</a></li>
+                        <li><strong>Calidad:</strong> <a href="mailto:calidad@lavanderia.com">calidad@lavanderia.com</a></li>
                     </ul>
                 </div>
             </section>
 
             <section class="contact-form-section">
-                <form action="" class="contact-form">
+                <form id="form-contacto" class="contact-form">
                     
                     <div class="input-group">
-                        <input type="text" placeholder="Nombre completo" required>
+                        <input type="text" id="contacto-nombre" placeholder="Nombre completo" required>
                     </div>
 
                     <div class="form-row-2">
                         <div class="input-group">
-                            <input type="email" placeholder="Dirección de correo electrónico" required>
+                            <input type="email" id="contacto-correo" placeholder="Dirección de correo electrónico" required>
                         </div>
                         <div class="input-group">
-                            <input type="tel" placeholder="Teléfono">
+                            <input type="tel" id="contacto-telefono" placeholder="Teléfono">
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <textarea placeholder="Mensaje" rows="5" required></textarea>
+                        <textarea id="contacto-mensaje" placeholder="Mensaje" rows="5" required></textarea>
                     </div>
 
                     <button type="submit" class="btn-submit" style="max-width: 150px; margin: 0;">Enviar</button>
@@ -84,5 +84,51 @@
         </div>
     </main>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const formulario = document.getElementById('form-contacto');
+
+        formulario.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Evita que la página se recargue
+
+            // Recolectar datos del formulario
+            const datosContacto = {
+                nombre: document.getElementById('contacto-nombre').value,
+                correo: document.getElementById('contacto-correo').value,
+                telefono: document.getElementById('contacto-telefono').value,
+                mensaje: document.getElementById('contacto-mensaje').value
+            };
+
+            // Deshabilitar botón para evitar doble envío
+            const btnSubmit = formulario.querySelector('.btn-submit');
+            btnSubmit.textContent = 'Enviando...';
+            btnSubmit.disabled = true;
+
+            try {
+                const respuesta = await fetch('/api/contacto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosContacto)
+                });
+
+                const resultado = await respuesta.json();
+
+                if (respuesta.ok) {
+                    alert(resultado.message);
+                    formulario.reset(); // Limpiar el formulario tras envío exitoso
+                } else {
+                    alert(resultado.error);
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario:', error);
+                alert('Ocurrió un error de conexión. Intenta nuevamente.');
+            } finally {
+                // Restaurar botón
+                btnSubmit.textContent = 'Enviar';
+                btnSubmit.disabled = false;
+            }
+        });
+    });
+    </script>
 </body>
 </html>

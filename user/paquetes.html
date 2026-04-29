@@ -17,12 +17,12 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#">Inicio</a></li>
-                    <li><a href="servicios.html"  class="active-nav">Servicios</a></li>
+                    <li><a href="dashboard.html">Inicio</a></li>
+                    <li><a href="servicios.html" class="active-nav">Servicios</a></li>
                     <li><a href="sucursales.html">Sucursales</a></li>
                     <li><a href="perfil.html">Mi Cuenta</a></li>
                     <li><a href="contacto.html">Contacto</a></li>
-                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
                 </ul>
             </nav>
         </div>
@@ -34,83 +34,109 @@
             <p>Ahorra tiempo y dinero con nuestros planes diseñados para tus necesidades. Elige el que mejor se adapte a ti.</p>
         </section>
 
-        <div class="pricing-grid">
-            
-            <div class="pricing-card">
-                <div class="pricing-header">
-                    <h3>Paquete Básico</h3>
-                    <div class="price">
-                        <span class="currency">$</span>250<span class="period">MXN</span>
-                    </div>
-                    <p class="pricing-desc">Ideal para la semana de una persona.</p>
-                </div>
-                <ul class="pricing-features">
-                    <li><span class="check">✔</span> Hasta 10kg de ropa</li>
-                    <li><span class="check">✔</span> Lavado y Secado estándar</li>
-                    <li><span class="check">✔</span> Detergente clásico incluido</li>
-                    <li><span class="check">✔</span> Doblado básico</li>
-                    <li class="disabled"><span class="cross">✖</span> Planchado no incluido</li>
-                </ul>
-                <button class="btn-pricing btn-outline">Seleccionar Básico</button>
+        <div class="pricing-grid" id="paquetes-container">
             </div>
-
-            <div class="pricing-card popular-card">
-                <div class="popular-badge">Más Elegido</div>
-                <div class="pricing-header">
-                    <h3>Paquete Premium</h3>
-                    <div class="price">
-                        <span class="currency">$</span>500<span class="period">MXN</span>
-                    </div>
-                    <p class="pricing-desc">Cuidado completo para tu ropa de trabajo.</p>
-                </div>
-                <ul class="pricing-features">
-                    <li><span class="check">✔</span> Hasta 15kg de ropa</li>
-                    <li><span class="check">✔</span> Lavado y Secado delicado</li>
-                    <li><span class="check">✔</span> <strong>Planchado a vapor incluido</strong></li>
-                    <li><span class="check">✔</span> Detergente premium y suavizante</li>
-                    <li><span class="check">✔</span> Entrega en ganchos</li>
-                </ul>
-                <button class="btn-pricing btn-primary">Seleccionar Premium</button>
-            </div>
-
-            <div class="pricing-card">
-                <div class="pricing-header">
-                    <h3>Paquete Familiar</h3>
-                    <div class="price">
-                        <span class="currency">$</span>800<span class="period">MXN</span>
-                    </div>
-                    <p class="pricing-desc">La solución completa para todo el hogar.</p>
-                </div>
-                <ul class="pricing-features">
-                    <li><span class="check">✔</span> <strong>Hasta 25kg de ropa</strong> (3 cargas)</li>
-                    <li><span class="check">✔</span> Lavado, Secado y Planchado</li>
-                    <li><span class="check">✔</span> Suavizante de libre elección</li>
-                    <li><span class="check">✔</span> Separación de color garantizada</li>
-                    <li><span class="check">✔</span> <strong>Recolección a domicilio gratis</strong></li>
-                </ul>
-                <button class="btn-pricing btn-outline">Seleccionar Familiar</button>
-            </div>
-
-            <div class="pricing-card">
-                <div class="pricing-header">
-                    <h3>Paquete Expreso</h3>
-                    <div class="price">
-                        <span class="currency">$</span>400<span class="period">MXN</span>
-                    </div>
-                    <p class="pricing-desc">Para cuando tienes prisa. Prioridad máxima.</p>
-                </div>
-                <ul class="pricing-features">
-                    <li><span class="check">✔</span> Hasta 15kg de ropa</li>
-                    <li><span class="check">✔</span> Lavado y Secado</li>
-                    <li><span class="check">✔</span> <strong>Entrega garantizada en 24h</strong></li>
-                    <li><span class="check">✔</span> Notificación SMS al finalizar</li>
-                    <li class="disabled"><span class="cross">✖</span> Planchado no incluido</li>
-                </ul>
-                <button class="btn-pricing btn-outline">Seleccionar Expreso</button>
-            </div>
-
-        </div>
     </main>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Validación de sesión
+        const idCliente = localStorage.getItem('id_cliente');
+        if (!idCliente) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const contenedor = document.getElementById('paquetes-container');
+
+        // 1. Cargar paquetes desde la Base de Datos
+        try {
+            const respuesta = await fetch('/api/paquetes');
+            const paquetes = await respuesta.json();
+
+            contenedor.innerHTML = ''; // Limpiamos el contenedor
+
+            paquetes.forEach(paquete => {
+                // Parseamos los beneficios (que guardamos como JSON en MySQL)
+                let caracteristicas = [];
+                try { caracteristicas = JSON.parse(paquete.descripcion_corta); } catch(e) { console.error('Error al leer descripciones'); }
+
+                // Generamos la lista de <li> dinámicamente
+                let listaHTML = '';
+                caracteristicas.forEach(item => {
+                    if (item.startsWith('-')) { // Si empieza con guion, es un "No incluido"
+                        listaHTML += `<li class="disabled"><span class="cross">✖</span> ${item.substring(1)}</li>`;
+                    } else {
+                        listaHTML += `<li><span class="check">✔</span> ${item}</li>`;
+                    }
+                });
+
+                // Lógica de diseño: Destacar el paquete Premium
+                const esPopular = paquete.nombre_servicio === 'Paquete Premium';
+                const badgeExtra = esPopular ? `<div class="popular-badge">Más Elegido</div>` : '';
+                const claseBoton = esPopular ? 'btn-primary' : 'btn-outline';
+                const claseCard = esPopular ? 'pricing-card popular-card' : 'pricing-card';
+
+                // Inyectar el HTML
+                const card = document.createElement('div');
+                card.className = claseCard;
+                card.innerHTML = `
+                    ${badgeExtra}
+                    <div class="pricing-header">
+                        <h3>${paquete.nombre_servicio}</h3>
+                        <div class="price">
+                            <span class="currency">$</span>${parseFloat(paquete.precio_base).toFixed(0)}<span class="period">MXN</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        ${listaHTML}
+                    </ul>
+                    <button class="btn-pricing ${claseBoton}" onclick="comprarPaquete(${paquete.id_servicio}, '${paquete.nombre_servicio}')">Seleccionar</button>
+                `;
+                contenedor.appendChild(card);
+            });
+
+        } catch (error) {
+            contenedor.innerHTML = '<p style="text-align:center; width:100%;">Error al cargar los paquetes disponibles.</p>';
+        }
+    });
+
+    // 2. Lógica de Compra y Redirección
+    async function comprarPaquete(idServicio, nombrePaquete) {
+        const idCliente = localStorage.getItem('id_cliente');
+
+        try {
+            const respuesta = await fetch('/api/comprar-paquete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_cliente: idCliente,
+                    id_servicio: idServicio,
+                    nombre_paquete: nombrePaquete
+                })
+            });
+
+            const resultado = await respuesta.json();
+
+            // Evaluar la respuesta del servidor
+            if (resultado.requirePayment) {
+                // Caso A: No tiene tarjeta
+                alert('Para adquirir este paquete, primero debes registrar un método de pago seguro.');
+                window.location.href = 'metodo-pago.html'; // Te aseguro que esto lo amará tu profesor
+                
+            } else if (resultado.success) {
+                // Caso B: Tiene tarjeta y se cobró/registró bien
+                alert(`¡Compra exitosa! \nTu pedido ha sido registrado con el código P-${String(resultado.id_pedido).padStart(3, '0')}`);
+                window.location.href = 'historial.html';
+                
+            } else {
+                alert(resultado.error || "Ocurrió un error inesperado.");
+            }
+
+        } catch (error) {
+            alert('Error de conexión al procesar la compra.');
+        }
+    }
+    </script>
 </body>
 </html>

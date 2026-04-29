@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Pago - LAVANDERIA ERP</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: #f4f7f6;">
+
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">LAVANDERIA</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+        
+        <section class="order-card" style="width: 100%; max-width: 500px;">
+            <h1 class="main-title" style="text-align: center; margin-bottom: 2rem;">Registrar Tarjeta</h1>
+            
+            <form id="form-pago" class="order-form">
+                <div class="input-group">
+                    <label for="titular">Nombre del Titular (Como aparece en la tarjeta)</label>
+                    <input type="text" id="titular" placeholder="EJ. MARCO ANTONIO" required>
+                </div>
+
+                <div class="input-group" style="margin-top: 1rem;">
+                    <label for="numero">Número de Tarjeta</label>
+                    <input type="text" id="numero" placeholder="0000 0000 0000 0000" maxlength="16" required>
+                </div>
+
+                <div class="form-row-2" style="margin-top: 1rem;">
+                    <div class="input-group">
+                        <label for="expiracion">Vencimiento (MM/YY)</label>
+                        <input type="text" id="expiracion" placeholder="12/28" maxlength="5" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="cvv">CVV</label>
+                        <input type="password" id="cvv" placeholder="***" maxlength="3" required>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2.5rem;">
+                    <button type="submit" class="btn-submit" style="width: 100%;">Guardar</button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const idCliente = localStorage.getItem('id_cliente');
+        if (!idCliente) { window.location.href = 'login.html'; return; }
+
+        const formulario = document.getElementById('form-pago');
+
+        formulario.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const datosCard = {
+                id_cliente: idCliente,
+                titular: document.getElementById('titular').value.toUpperCase(),
+                numero: document.getElementById('numero').value,
+                expiracion: document.getElementById('expiracion').value,
+                cvv: document.getElementById('cvv').value
+            };
+
+            try {
+                const respuesta = await fetch('/api/metodos-pago', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosCard)
+                });
+
+                if (respuesta.ok) {
+                    alert('¡Método de pago guardado!');
+                    // Regresa automáticamente a la página de donde venía el cliente (ej. Nuevo Pedido)
+                    window.history.back();
+                } else {
+                    const err = await respuesta.json();
+                    alert(err.error);
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor.');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

@@ -20,12 +20,12 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#">Inicio</a></li>
+                    <li><a href="dashboard.html">Inicio</a></li>
                     <li><a href="servicios.html">Servicios</a></li>
                     <li><a href="sucursales.html">Sucursales</a></li>
                     <li><a href="#" class="active-nav">Mi Cuenta</a></li>
                     <li><a href="contacto.html">Contacto</a></li>
-                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
                 </ul>
             </nav>
         </div>
@@ -35,7 +35,7 @@
         <h1 class="main-title" style="text-align: center; margin-bottom: 2rem;">Editar Información Personal y Métodos de Pago</h1>
 
         <div class="profile-card">
-            <form action="" class="profile-form">
+            <form id="form-perfil" class="profile-form">
                 
                 <div class="profile-grid">
                     <section class="profile-section">
@@ -43,22 +43,22 @@
                         
                         <div class="horizontal-group">
                             <label for="nombre">Nombre Completo</label>
-                            <input type="text" id="nombre" value="Jample Completo" required>
+                            <input type="text" id="nombre" required>
                         </div>
 
                         <div class="horizontal-group">
                             <label for="correo">Correo Electrónico (Principal)</label>
-                            <input type="email" id="correo" value="correo@lavanderia.com" required>
+                            <input type="email" id="correo" required>
                         </div>
 
                         <div class="horizontal-group">
                             <label for="telefono">Número de Teléfono (Para Avisos)</label>
-                            <input type="tel" id="telefono" value="55 1234 5678">
+                            <input type="tel" id="telefono">
                         </div>
 
                         <div class="horizontal-group">
                             <label for="direccion">Dirección de Entrega Principal</label>
-                            <input type="text" id="direccion" value="Dirección de Entr">
+                            <input type="text" id="direccion">
                         </div>
                     </section>
 
@@ -67,36 +67,22 @@
                         
                         <h3 class="subsection-title">Tarjetas y Métodos Guardados</h3>
                         
-                        <div class="saved-cards-list">
-                            <div class="saved-card-item">
-                                <div class="card-info">
-                                    <span>Visa Debito &bull;&bull;&bull;&bull; 4567</span>
-                                    <span class="badge-tag">Principal</span>
-                                </div>
-                                <a href="#" class="remove-link">Quitar</a>
-                            </div>
-
-                            <div class="saved-card-item">
-                                <div class="card-info">
-                                    <span>Mastercard &bull;&bull;&bull;&bull; 8901</span>
-                                    <span class="badge-tag badge-secondary">Secundaria</span>
-                                </div>
-                                <a href="#" class="remove-link">Quitar</a>
-                            </div>
+                        <div class="saved-cards-list" id="contenedor-tarjetas">
+                            <p style="font-size: 0.9rem; color: #666;">Cargando tarjetas...</p>
                         </div>
 
-                        <a href="#" class="add-method-link">+ Añadir Nuevo Método de Pago (Tarjeta/Transferencia)</a>
+                        <a href="metodo-pago.html" class="add-method-link">+ Añadir Nuevo Método de Pago (Tarjeta/Transferencia)</a>
 
                         <h3 class="subsection-title" style="margin-top: 2.5rem;">Datos de Facturación</h3>
 
                         <div class="horizontal-group">
                             <label for="rfc">Razón Social / RFC</label>
-                            <input type="text" id="rfc" value="Rfex Social / RFC">
+                            <input type="text" id="rfc">
                         </div>
 
                         <div class="horizontal-group">
                             <label for="fiscal">Dirección Fiscal</label>
-                            <input type="text" id="fiscal" value="Dirección Fiscal, So. Aullo Panor">
+                            <input type="text" id="fiscal">
                         </div>
                     </section>
                 </div>
@@ -110,5 +96,123 @@
         </div>
     </main>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const idCliente = localStorage.getItem('id_cliente');
+        if (!idCliente) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 1. Cargar Datos del Perfil
+        try {
+            const resPerfil = await fetch(`/api/perfil/${idCliente}`);
+            if (resPerfil.ok) {
+                const perfil = await resPerfil.json();
+                
+                document.getElementById('nombre').value = `${perfil.nombre_cliente} ${perfil.apellidos_cliente || ''}`.trim();
+                document.getElementById('correo').value = perfil.correo_electronico || '';
+                document.getElementById('telefono').value = perfil.telefono_contacto || '';
+                document.getElementById('direccion').value = perfil.direccion_entrega || '';
+                document.getElementById('rfc').value = perfil.rfc || '';
+                document.getElementById('fiscal').value = perfil.direccion_fiscal || '';
+            }
+        } catch (error) {
+            console.error("Error cargando perfil:", error);
+        }
+
+        // 2. Cargar Tarjetas Guardadas
+        cargarTarjetas(idCliente);
+
+        // 3. Manejar Envío del Formulario (Actualización)
+        document.getElementById('form-perfil').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const datosActualizados = {
+                nombreCompleto: document.getElementById('nombre').value,
+                correo: document.getElementById('correo').value,
+                telefono: document.getElementById('telefono').value,
+                direccionEntrega: document.getElementById('direccion').value,
+                rfc: document.getElementById('rfc').value,
+                fiscal: document.getElementById('fiscal').value
+            };
+
+            try {
+                const resUpdate = await fetch(`/api/perfil/${idCliente}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosActualizados)
+                });
+
+                if (resUpdate.ok) {
+                    alert('¡Tus datos han sido actualizados con éxito!');
+                } else {
+                    alert('Hubo un error al actualizar tus datos.');
+                }
+            } catch (error) {
+                alert('Error de conexión con el servidor.');
+            }
+        });
+    });
+
+    // Función para renderizar y actualizar las tarjetas
+    async function cargarTarjetas(idCliente) {
+        const contenedorTarjetas = document.getElementById('contenedor-tarjetas');
+        try {
+            // Reutilizamos el endpoint creado en el paso de métodos de pago
+            const resTarjetas = await fetch(`/api/metodos-pago/${idCliente}`);
+            const data = await resTarjetas.json();
+
+            contenedorTarjetas.innerHTML = ''; // Limpiamos el contenedor
+
+            if (!data.tieneMetodo || data.tarjetas.length === 0) {
+                contenedorTarjetas.innerHTML = '<p style="font-size: 0.9rem; color: #666;">No tienes métodos de pago registrados.</p>';
+                return;
+            }
+
+            data.tarjetas.forEach((tarjeta, index) => {
+                const badge = index === 0 ? '<span class="badge-tag">Principal</span>' : '<span class="badge-tag badge-secondary">Secundaria</span>';
+                const marca = tarjeta.marca_tarjeta || 'Tarjeta';
+
+                const cardItem = document.createElement('div');
+                cardItem.className = 'saved-card-item';
+                cardItem.innerHTML = `
+                    <div class="card-info">
+                        <span>${marca} &bull;&bull;&bull;&bull; ${tarjeta.ultimos_cuatro}</span>
+                        ${badge}
+                    </div>
+                    <a href="#" class="remove-link" onclick="eliminarTarjeta(event, ${tarjeta.id_tarjeta})">Quitar</a>
+                `;
+                contenedorTarjetas.appendChild(cardItem);
+            });
+        } catch (error) {
+            contenedorTarjetas.innerHTML = '<p style="font-size: 0.9rem; color: #e74c3c;">Error al cargar tus tarjetas.</p>';
+        }
+    }
+
+    // Función para eliminar tarjeta
+    async function eliminarTarjeta(evento, idTarjeta) {
+        evento.preventDefault(); // Evita que el enlace salte a otra página
+        
+        const confirmacion = confirm("¿Estás seguro de que deseas eliminar este método de pago?");
+        if (!confirmacion) return;
+
+        try {
+            const res = await fetch(`/api/metodos-pago/${idTarjeta}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                // Si se eliminó correctamente, recargamos la lista dinámica sin actualizar toda la página
+                const idCliente = localStorage.getItem('id_cliente');
+                cargarTarjetas(idCliente);
+            } else {
+                alert("No se pudo eliminar la tarjeta.");
+            }
+        } catch (error) {
+            alert("Error al intentar comunicarse con el servidor.");
+        }
+    }
+    </script>
 </body>
 </html>
