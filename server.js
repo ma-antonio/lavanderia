@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'user')));
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'admin_lavanderia',
-    password: 'Password123!', // Cambia por tu contraseña real
+    password: 'Password123!', // Contraseña
     database: 'erp_lavanderia'
 });
 
