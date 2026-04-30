@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body class="admin-login-body">
+
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Acceso Sistema ERP</h2>
+            <p>Ingrese sus credenciales operativas</p>
+            
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="emp-id">ID de Empleado</label>
+                    <input type="text" id="emp-id" placeholder="EJ. EMP-001" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emp-pass">Contraseña</label>
+                    <input type="password" id="emp-pass" placeholder="***" required>
+                </div>
+
+                <button type="submit" class="btn-login">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('admin-login-form');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Evitamos que recargue la página
+
+                const empId = document.getElementById('emp-id').value;
+                const empPass = document.getElementById('emp-pass').value;
+
+                // Cambiar el texto del botón mientras carga
+                const btn = form.querySelector('.btn-login');
+                btn.textContent = 'Verificando...';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/admin/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ empleado_id: empId, password: empPass })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        // Activamos la sesión del administrador
+                        localStorage.setItem('admin_activo', 'true');
+                        // Redirigimos al panel de control
+                        window.location.href = 'admin.html';
+                    } else {
+                        alert(data.error || 'Acceso denegado.');
+                    }
+                } catch (error) {
+                    alert('Error de conexión con el servidor.');
+                } finally {
+                    btn.textContent = 'Ingresar';
+                    btn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Índice de Páginas</title>
-<link rel="stylesheet" href="style.css">
-<style>
-    body{
-        font-family: Arial, sans-serif;
-        background:#f4f4f4;
-        margin:0;
-        padding:40px;
-    }
-    .contenedor{
-        max-width:700px;
-        margin:auto;
-        background:white;
-        padding:30px;
-        border-radius:10px;
-        box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
-    h1{
-        text-align:center;
-        margin-bottom:25px;
-    }
-    ul{
-        list-style:none;
-        padding:0;
-    }
-    li{
-        margin:10px 0;
-    }
-    a{
-        display:block;
-        padding:12px;
-        background:#007BFF;
-        color:white;
-        text-decoration:none;
-        border-radius:6px;
-        transition:0.3s;
-    }
-    a:hover{
-        background:#0056b3;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - LAVANDERIA ERP</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="contenedor">
-    <h1>Menú de Páginas</h1>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">LAVANDERIA</span>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html" class="active-nav">Inicio</a></li>
+                    <li><a href="paquetes.html">Servicios</a></li>
+                    <li><a href="sucursales.html">Sucursales</a></li>
+                    <li><a href="dashboard.html">Mi Cuenta</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Nuevo pedido</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <ul>
-        <li><a href="contacto.html">Contacto</a></li>
-        <li><a href="disponibilidad.html">Disponibilidad</a></li>
-        <li><a href="guias.html">Guías</a></li>
-        <li><a href="historial.html">Historial</a></li>
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="dashboard.html">Inicio Perfil</a></li>
-        <li><a href="login.html">Login</a></li>
-        <li><a href="nuevo-pedido.html">Nuevo Pedido</a></li>
-        <li><a href="paquetes.html">Paquetes</a></li>
-        <li><a href="perfil.html">Perfil</a></li>
-        <li><a href="registro.html">Registro</a></li>
-        <li><a href="servicios.html">Servicios</a></li>
-        <li><a href="sucursales.html">Sucursales</a></li>
-    </ul>
-</div>
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Cuidamos tus prendas,<br>simplificamos tu vida.</h1>
+                <p class="hero-subtitle">El primer sistema integral de lavandería con control en tiempo real, monedero digital y recolección a domicilio.</p>
+                <div class="hero-buttons">
+                    <a href="registro.html" class="btn-hero-primary">Crea tu cuenta gratis</a>
+                    <a href="servicios.html" class="btn-hero-secondary">Ver servicios</a>
+                </div>
+            </div>
+        </section>
 
-</body>
-</html>
+        <section class="features-section">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Descubre todo lo que ofrecemos</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Paquetes de Lavado</h3>
+                    <p>Ahorra con nuestros planes diseñados para ti. Desde lavado básico hasta servicio premium con planchado.</p>
+                    <a href="paquetes.html" class="feature-link">Ver Paquetes &rarr;</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>Monitoreo en Tiempo Real</h3>
+                    <p>No pierdas tiempo esperando. Revisa la disponibilidad de máquinas en tu sucursal favorita antes de salir de casa.</p>
+                    <a href="disponibilidad.html" class="feature-link">Revisar Disponibilidad &rarr;</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3>Directorio de Sucursales</h3>
+                    <p>Encuentra la lavandería más cercana a tu ubicación, consulta sus horarios y servicios específicos.</p>
+                    <a href="sucursales.html" class="feature-link">Buscar Sucursales &rarr;</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>Control Total</h3>
+                    <p>

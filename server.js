@@ -78,6 +78,49 @@ app.get('/api/dashboard/:id', (req, res) => {
     });
 });
 
+// Archivo: server.js (Añadir este nuevo endpoint)
+
+/**
+ * ENDPOINT: Recargar Saldo del Monedero Digital
+ * Verifica método de pago y actualiza (o crea) el saldo del cliente.
+ */
+app.post('/api/recarga', (req, res) => {
+    const { id_cliente, monto } = req.body;
+    const montoRecarga = parseFloat(monto);
+
+    // 1. Verificar si tiene una tarjeta registrada
+    db.query('SELECT id_tarjeta FROM tarjetas_pago WHERE id_cliente = ?', [id_cliente], (err, tarjetas) => {
+        if (err) return res.status(500).json({ error: 'Error verificando método de pago' });
+
+        // Si NO tiene tarjeta, detenemos el proceso y avisamos al frontend
+        if (tarjetas.length === 0) {
+            return res.status(200).json({ requirePayment: true });
+        }
+
+        // 2. Si SÍ tiene tarjeta, verificamos si ya tiene un monedero creado
+        db.query('SELECT id_monedero FROM monederos_digitales WHERE id_cliente = ?', [id_cliente], (err, monedero) => {
+            if (err) return res.status(500).json({ error: 'Error consultando monedero' });
+
+            if (monedero.length > 0) {
+                // Si ya existe, simplemente le sumamos el saldo nuevo
+                const updateQuery = 'UPDATE monederos_digitales SET saldo_actual = saldo_actual + ?, ultima_actualizacion = NOW() WHERE id_cliente = ?';
+                db.query(updateQuery, [montoRecarga, id_cliente], (errUpdate) => {
+                    if (errUpdate) return res.status(500).json({ error: 'Error al recargar saldo' });
+                    res.status(200).json({ success: true, message: 'Recarga exitosa' });
+                });
+            } else {
+                // Si es su primera vez usando el monedero, se lo creamos
+                const codigoAleatorio = `TARJ-${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+                const insertQuery = 'INSERT INTO monederos_digitales (id_cliente, codigo_tarjeta, saldo_actual, ultima_actualizacion) VALUES (?, ?, ?, NOW())';
+                db.query(insertQuery, [id_cliente, codigoAleatorio, montoRecarga], (errInsert) => {
+                    if (errInsert) return res.status(500).json({ error: 'Error al habilitar monedero y recargar' });
+                    res.status(200).json({ success: true, message: 'Recarga exitosa' });
+                });
+            }
+        });
+    });
+});
+
 /**
  * ENDPOINT: Registro de Clientes
  * IDs del formulario involucrados: reg-nombre, reg-apellidos, reg-correo, reg-tel, reg-direccion, reg-password
@@ -173,11 +216,11 @@ app.get('/api/historial/:id', (req, res) => {
     });
 });
 
-// Archivo: server.js
+// Archivo: server.js (Reemplaza el endpoint existente)
 
 /**
  * ENDPOINT: Registrar Nuevo Pedido (Cliente)
- * Recibe los datos del formulario 'nuevo-pedido.html' y los guarda en 'pedidos_servicio'
+ * Guarda el pedido con validación de método de pago si elige tarjeta.
  */
 app.post('/api/pedidos', (req, res) => {
     const { 
@@ -185,26 +228,43 @@ app.post('/api/pedidos', (req, res) => {
         suavizante, entrega, express, pago, direccion_entrega 
     } = req.body;
 
-    // Agrupamos todas las opciones elegidas en el campo "notas_especiales"
-    const notas = `Servicio: ${servicio} | Peso: ${kilos}kg | Detergente: ${detergente} | Suavizante: ${suavizante} | Entrega: ${entrega} | Express: ${express ? 'Sí' : 'No'} | Pago: ${pago} | Dir: ${direccion_entrega || 'En sucursal'}`;
+    // 1. Validar si eligió pago con tarjeta y si tiene una registrada
+    if (pago === 'tarjeta') {
+        db.query('SELECT id_tarjeta FROM tarjetas_pago WHERE id_cliente = ?', [id_cliente], (err, tarjetas) => {
+            if (err) return res.status(500).json({ error: 'Error verificando método de pago' });
 
-    // Como es un pedido en línea (autoservicio), asignamos al empleado 1 (o al recepcionista principal) por defecto
-    const id_empleado_asignado = 1;
+            // Si NO tiene tarjeta, detenemos el proceso y avisamos al frontend
+            if (tarjetas.length === 0) {
+                return res.status(200).json({ requirePayment: true });
+            }
 
-    const query = `
-        INSERT INTO pedidos_servicio 
-        (id_cliente, id_sucursal, id_empleado_recibe, estado_lavado, notas_especiales, fecha_recepcion) 
-        VALUES (?, ?, ?, 'Pendiente', ?, NOW())
-    `;
+            // Si SÍ tiene tarjeta, continuamos a guardar el pedido
+            ejecutarRegistroPedido();
+        });
+    } else {
+        // Si eligió pago en efectivo, procedemos directo
+        ejecutarRegistroPedido();
+    }
 
-    db.query(query, [id_cliente, id_sucursal, id_empleado_asignado, notas], (err, result) => {
-        if (err) {
-            console.error("Error al registrar pedido:", err);
-            return res.status(500).json({ error: 'Error interno al registrar el pedido en la base de datos.' });
-        }
-        // Devolvemos el ID generado para que el cliente pueda ver su número de ticket
-        res.status(201).json({ message: 'Pedido registrado con éxito', id_pedido: result.insertId });
-    });
+    // 2. Función para insertar el pedido (se ejecuta si pasa las validaciones)
+    function ejecutarRegistroPedido() {
+        const notas = `Servicio: ${servicio} | Peso: ${kilos}kg | Detergente: ${detergente} | Suavizante: ${suavizante} | Entrega: ${entrega} | Express: ${express ? 'Sí' : 'No'} | Pago: ${pago} | Dir: ${direccion_entrega || 'En sucursal'}`;
+        const id_empleado_asignado = 1;
+
+        const query = `
+            INSERT INTO pedidos_servicio 
+            (id_cliente, id_sucursal, id_empleado_recibe, estado_lavado, notas_especiales, fecha_recepcion) 
+            VALUES (?, ?, ?, 'Pendiente', ?, NOW())
+        `;
+
+        db.query(query, [id_cliente, id_sucursal, id_empleado_asignado, notas], (err, result) => {
+            if (err) {
+                console.error("Error al registrar pedido:", err);
+                return res.status(500).json({ error: 'Error interno al registrar el pedido.' });
+            }
+            res.status(201).json({ success: true, id_pedido: result.insertId });
+        });
+    }
 });
 
 // Archivo: server.js
@@ -427,6 +487,136 @@ app.get('/api/sucursales', (req, res) => {
             return res.status(500).json({ error: 'Error interno al obtener las sucursales.' });
         }
         res.status(200).json(results);
+    });
+});
+
+// ==========================================
+// MÓDULO DE ADMINISTRACIÓN INTERNA
+// ==========================================
+
+// 1. PEDIDOS: Leer todos (LEFT JOIN para no ocultar nada) y Actualizar Estado
+app.get('/api/admin/pedidos', (req, res) => {
+    const query = `
+        SELECT p.id_pedido, p.fecha_recepcion, c.nombre_cliente, c.apellidos_cliente, s.nombre_sucursal, p.estado_lavado
+        FROM pedidos_servicio p
+        LEFT JOIN clientes c ON p.id_cliente = c.id_cliente
+        LEFT JOIN sucursales s ON p.id_sucursal = s.id_sucursal
+        ORDER BY p.id_pedido DESC
+    `;
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error("Error al cargar pedidos:", err);
+            return res.status(500).json({ error: 'Error al cargar pedidos.' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+app.put('/api/admin/pedidos/:id', (req, res) => {
+    const { estado } = req.body;
+    db.query('UPDATE pedidos_servicio SET estado_lavado = ? WHERE id_pedido = ?', [estado, req.params.id], (err) => {
+        if (err) {
+            // Este log te dirá exactamente por qué falló en tu terminal negra de Node.js
+            console.error("Fallo SQL al actualizar pedido (Revisa tus ENUM de la BD):", err.sqlMessage);
+            return res.status(500).json({ error: 'Error en base de datos. Revisa la consola de Node.' });
+        }
+        res.status(200).json({ success: true, message: 'Estado actualizado' });
+    });
+});
+
+// 2. SUCURSALES: Leer todas, Actualizar Zonas y AGREGAR NUEVAS
+app.get('/api/admin/sucursales', (req, res) => {
+    db.query('SELECT * FROM sucursales', (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al cargar sucursales.' });
+        res.status(200).json(results);
+    });
+});
+
+app.put('/api/admin/sucursales/:id', (req, res) => {
+    const { zona_a, zona_b, zona_c, zona_d } = req.body;
+    const query = 'UPDATE sucursales SET zona_a = ?, zona_b = ?, zona_c = ?, zona_d = ? WHERE id_sucursal = ?';
+    db.query(query, [zona_a, zona_b, zona_c, zona_d, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: 'Error al actualizar disponibilidad.' });
+        res.status(200).json({ success: true });
+    });
+});
+
+// NUEVO: Agregar Sucursal
+app.post('/api/admin/sucursales', (req, res) => {
+    const { nombre_sucursal, direccion_completa, telefono_contacto } = req.body;
+    const query = `
+        INSERT INTO sucursales (nombre_sucursal, direccion_completa, telefono_contacto, estado, zona_a, zona_b, zona_c, zona_d) 
+        VALUES (?, ?, ?, 'Activa', 'Libre', 'Libre', 'Libre', 'Libre')
+    `;
+    db.query(query, [nombre_sucursal, direccion_completa, telefono_contacto], (err) => {
+        if (err) {
+            console.error("Error agregando sucursal:", err);
+            return res.status(500).json({ error: 'Error al agregar la sucursal.' });
+        }
+        res.status(201).json({ success: true });
+    });
+});
+
+// 3. PAQUETES: Leer catálogo y Actualizar Precio
+app.get('/api/admin/paquetes', (req, res) => {
+    db.query('SELECT * FROM catalogo_servicios WHERE categoria = "Paquete"', (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al cargar paquetes.' });
+        res.status(200).json(results);
+    });
+});
+
+app.put('/api/admin/paquetes/:id', (req, res) => {
+    const { precio_base } = req.body;
+    db.query('UPDATE catalogo_servicios SET precio_base = ? WHERE id_servicio = ?', [precio_base, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: 'Error al actualizar paquete.' });
+        res.status(200).json({ success: true });
+    });
+});
+
+// 4. QUEJAS: Leer comentarios y Actualizar Estado
+app.get('/api/admin/quejas', (req, res) => {
+    db.query('SELECT * FROM comentarios_clientes ORDER BY fecha_envio DESC', (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error al cargar quejas.' });
+        res.status(200).json(results);
+    });
+});
+
+app.put('/api/admin/quejas/:id', (req, res) => {
+    const { estado_queja } = req.body;
+    db.query('UPDATE comentarios_clientes SET estado_queja = ? WHERE id_comentario = ?', [estado_queja, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: 'Error al actualizar queja.' });
+        res.status(200).json({ success: true });
+    });
+});
+
+// ==========================================
+// LOGIN DE ADMINISTRADOR
+// ==========================================
+
+/**
+ * ENDPOINT: Validar credenciales del Staff
+ */
+app.post('/api/admin/login', (req, res) => {
+    const { empleado_id, password } = req.body;
+
+    // Extraemos solo los números del input (ej. "EMP-001" se convierte en "1")
+    const idLimpio = empleado_id.replace(/\D/g, '');
+
+    const query = 'SELECT * FROM empleados WHERE id_empleado = ? AND contrasena_hash = ? AND rol_sistema = "Administrador"';
+    
+    db.query(query, [idLimpio, password], (err, results) => {
+        if (err) {
+            console.error("Error en login de admin:", err);
+            return res.status(500).json({ error: 'Error interno del servidor.' });
+        }
+        
+        if (results.length > 0) {
+            // Credenciales correctas y es administrador
+            res.status(200).json({ success: true });
+        } else {
+            // Falla la validación
+            res.status(401).json({ error: 'Credenciales incorrectas o no tienes permisos de Administrador.' });
+        }
     });
 });
 

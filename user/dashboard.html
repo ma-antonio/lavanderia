@@ -20,12 +20,12 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#" class="active-nav">Inicio</a></li>
-                    <li><a href="servicios.html">Servicios</a></li>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="paquetes.html">Servicios</a></li>
                     <li><a href="sucursales.html">Sucursales</a></li>
-                    <li><a href="perfil.html">Mi Cuenta</a></li>
+                    <li><a href="dashboard.html" class="active-nav">Mi Cuenta</a></li>
                     <li><a href="contacto.html">Contacto</a></li>
-                    <li><a href="#" class="btn-nuevo-pedido">Registrar nuevo pedido</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Nuevo pedido</a></li>
                 </ul>
             </nav>
         </div>
@@ -40,11 +40,12 @@
 
         <section class="wallet-block">
             <div class="wallet-tabs">
-                <div class="tab active-tab">Detalle de la Tarjeta Recargable</div>
-                <div class="tab">Opciones de Saldo y Recarga</div>
+                <div class="tab active-tab" id="tab-detalle" onclick="switchTab('detalle')">Detalle de la Tarjeta Recargable</div>
+                <div class="tab" id="tab-recarga" onclick="switchTab('recarga')">Opciones de Saldo y Recarga</div>
             </div>
             
-            <div class="wallet-content">
+            <!-- CONTENIDO 1: DETALLE DE TARJETA -->
+            <div class="wallet-content" id="content-detalle">
                 <div class="wallet-visual">
                     <span>TARJETA<br>RECARGABLE</span>
                 </div>
@@ -55,7 +56,48 @@
                     <p class="wallet-date" id="dash-tarjeta-fecha">Última Verificación: --</p>
                     <p class="balance-amount" id="dash-saldo-actual">$0.00 MXN</p> 
                 </div>
+            </div>
+
+            <!-- CONTENIDO 2: FORMULARIO DE RECARGA (Oculto por defecto) -->
+            <div class="wallet-content" id="content-recarga" style="display: none; flex-direction: column; width: 100%;">
+                <h3 style="font-size: 1.1rem; color: #2c3e50; margin-bottom: 1rem;">Selecciona el monto a recargar</h3>
                 
+                <form id="form-recarga" style="width: 100%;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px;">
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="20" checked>
+                            <span class="card-content"><strong>$20</strong></span>
+                        </label>
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="30">
+                            <span class="card-content"><strong>$30</strong></span>
+                        </label>
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="50">
+                            <span class="card-content"><strong>$50</strong></span>
+                        </label>
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="100">
+                            <span class="card-content"><strong>$100</strong></span>
+                        </label>
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="200">
+                            <span class="card-content"><strong>$200</strong></span>
+                        </label>
+                        <label class="radio-card" style="padding: 10px; text-align: center;">
+                            <input type="radio" name="monto" value="500">
+                            <span class="card-content"><strong>$500</strong></span>
+                        </label>
+                    </div>
+
+                    <!-- Visualización del método de pago dinámico -->
+                    <div style="margin-top: 1.5rem; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #555;">Cargo directo a:</p>
+                        <p id="recarga-metodo-pago" style="margin: 5px 0 0 0; font-weight: 600; color: #2c3e50;">Cargando método de pago...</p>
+                    </div>
+
+                    <button type="submit" class="btn-submit" style="width: 100%; margin-top: 1.5rem;">Procesar Recarga</button>
+                </form>
             </div>
         </section>
 
@@ -75,14 +117,35 @@
                         </tr>
                     </thead>
                     <tbody id="dash-tabla-historial">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </section>
+        
+        <div class="container-perfil">
+            <a href="historial.html" class="btn-second-perfil">Historial Completo</a>
+            <a href="perfil.html" class="btn-second-perfil">Editar Perfil</a>
+        </div>
 
     </main>
 
     <script>
+    // Lógica para cambiar entre pestañas (Detalle / Recarga)
+    function switchTab(tabName) {
+        document.getElementById('tab-detalle').classList.remove('active-tab');
+        document.getElementById('tab-recarga').classList.remove('active-tab');
+        document.getElementById('content-detalle').style.display = 'none';
+        document.getElementById('content-recarga').style.display = 'none';
+
+        document.getElementById(`tab-${tabName}`).classList.add('active-tab');
+        
+        if (tabName === 'detalle') {
+            document.getElementById('content-detalle').style.display = 'flex';
+        } else {
+            document.getElementById('content-recarga').style.display = 'flex';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         // 1. Verificación de seguridad
         const idCliente = localStorage.getItem('id_cliente');
@@ -92,23 +155,16 @@
         }
 
         try {
-            // 2. Petición al servidor
+            // 2. Petición al servidor (Datos Principales)
             const respuesta = await fetch(`/api/dashboard/${idCliente}`);
             const datos = await respuesta.json();
-
-            // Impresión en consola para que audites qué devuelve exactamente tu base de datos
-            console.log("Datos recibidos del servidor:", datos);
 
             if (respuesta.ok) {
                 const { cliente, historial } = datos;
 
-                // 3A. Actualizar el saludo superior sin usar ID (usando el selector de la clase)
                 const welcomeTitle = document.querySelector('.welcome-block .main-title');
-                if (welcomeTitle) {
-                    welcomeTitle.textContent = `Hola, ${cliente.nombre_cliente} 👋`;
-                }
+                if (welcomeTitle) welcomeTitle.textContent = `Hola, ${cliente.nombre_cliente} 👋`;
 
-                // 3B. Inyectar datos en la tarjeta recargable
                 document.getElementById('dash-nombre-usuario').textContent = `${cliente.nombre_cliente} ${cliente.apellidos_cliente}`;
                 document.getElementById('dash-tarjeta-id').textContent = cliente.codigo_tarjeta || 'Sin asignar';
                 
@@ -120,19 +176,15 @@
                     document.getElementById('dash-tarjeta-fecha').textContent = `Última Verificación: ${fechaActualizacion}`;
                 }
 
-                // 4. Inyectar el historial de pedidos dinámicamente
+                // 3. Inyectar el historial
                 const tablaHistorial = document.getElementById('dash-tabla-historial');
                 tablaHistorial.innerHTML = ''; 
 
-                // Validación robusta: Comprobamos que 'historial' exista y sea un arreglo
                 if (!historial || historial.length === 0) {
                     tablaHistorial.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Aún no tienes pedidos registrados en el sistema.</td></tr>`;
                 } else {
                     historial.forEach(pedido => {
-                        // Evitamos errores si la fecha viene nula
-                        const fechaRegistro = pedido.fecha_recepcion 
-                            ? new Date(pedido.fecha_recepcion).toLocaleString('es-MX') 
-                            : 'Fecha no disponible';
+                        const fechaRegistro = pedido.fecha_recepcion ? new Date(pedido.fecha_recepcion).toLocaleString('es-MX') : 'Fecha no disponible';
                         
                         const fila = document.createElement('tr');
                         fila.innerHTML = `
@@ -146,12 +198,63 @@
                         tablaHistorial.appendChild(fila);
                     });
                 }
-            } else {
-                console.error("Error del servidor:", datos.error);
             }
         } catch (error) {
             console.error("Hubo un problema de conexión al intentar renderizar el panel:", error);
         }
+
+        // 4. Cargar Método de Pago para el área de Recarga
+        try {
+            const resPago = await fetch(`/api/metodos-pago/${idCliente}`);
+            const dataPago = await resPago.json();
+            const textoPago = document.getElementById('recarga-metodo-pago');
+            
+            if (dataPago.tieneMetodo && dataPago.tarjetas.length > 0) {
+                const tarjeta = dataPago.tarjetas[0];
+                textoPago.innerHTML = `💳 ${tarjeta.marca_tarjeta || 'Tarjeta'} terminación <strong>${tarjeta.ultimos_cuatro}</strong>`;
+            } else {
+                textoPago.innerHTML = `<span style="color: #e74c3c;">No tienes método de pago. Te redirigiremos al recargar.</span>`;
+            }
+        } catch(error) {
+            console.error("Error cargando método de pago para recarga:", error);
+        }
+
+        // 5. Enviar el Formulario de Recarga
+        document.getElementById('form-recarga').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const monto = document.querySelector('input[name="monto"]:checked').value;
+            
+            // Cambiar texto de botón para prevenir doble clic
+            const btn = e.target.querySelector('.btn-submit');
+            btn.textContent = "Procesando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/recarga', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_cliente: idCliente, monto: monto })
+                });
+                
+                const resultado = await res.json();
+                
+                if (resultado.requirePayment) {
+                    alert("Para poder recargar saldo, primero debes registrar un método de pago seguro.");
+                    window.location.href = 'metodo-pago.html';
+                } else if (resultado.success) {
+                    alert(`¡Recarga exitosa! Se han agregado $${monto}.00 MXN a tu monedero.`);
+                    window.location.reload(); // Recarga la página para actualizar el saldo visualmente
+                } else {
+                    alert(resultado.error);
+                }
+            } catch (error) {
+                alert("Ocurrió un error al intentar procesar la recarga.");
+            } finally {
+                btn.textContent = "Procesar Recarga";
+                btn.disabled = false;
+            }
+        });
     });
     </script>
 </body>

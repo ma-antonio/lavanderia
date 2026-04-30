@@ -345,6 +345,33 @@ body {
     width: 100%;
 }
 
+.container-sucursales {
+  display: flex;
+  justify-content: center; /* Centrado horizontal */
+  align-items: center;     /* Centrado vertical */
+  height: 100vh;           /* 100% del alto de la ventana (Viewport Height) */
+  background-color: #f0f4f4; /* El tono claro de fondo de image_280aa1.png */
+}
+
+.btn-primary {
+  display: inline-block;
+  text-decoration: none;
+  background-color: #388e3c; /* Verde bosque de la imagen */
+  color: white;
+  padding: 14px 32px;
+  border-radius: 6px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+  background-color: #2e7d32;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* Etiquetas de servicios (Badges) */
 .branch-services-badges {
     margin-top: 1.5rem;
@@ -949,6 +976,34 @@ body {
         border-top: none;
         border-left: 3px solid var(--primary-color);
     }
+}
+
+.container-perfil {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f4f4;
+  height: auto;
+}
+
+.btn-second-perfil {
+  display: inline-block;
+  text-decoration: none;
+  background-color: #388e3c; 
+  color: white;
+  padding: 14px 32px;
+  border-radius: 6px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  margin: 15px;
+}
+
+.btn-second-perfil:hover {
+  background-color: #2e7d32;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* =========================================
@@ -1686,4 +1741,190 @@ body {
     .guide-category-card {
         padding: 25px 15px;
     }
+}
+
+/* =========================================================
+   ESTILOS PARA LA PÁGINA DE INICIO (INDEX)
+   ========================================================= */
+
+/* Hero Section */
+.hero-section {
+    background-color: #e9f2f0; /* Un verde/azul muy suave */
+    padding: 6rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid #d1e3df;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 3rem;
+    color: #2c3e50;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: #556b66;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary, .btn-hero-secondary {
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-hero-primary {
+    background-color: #2e7d32; /* Usa aquí tu variable --primary-color si la tienes */
+    color: #fff;
+}
+
+.btn-hero-primary:hover {
+    background-color: #1b5e20;
+    transform: translateY(-2px);
+}
+
+.btn-hero-secondary {
+    background-color: #fff;
+    color: #2e7d32;
+    border: 2px solid #2e7d32;
+}
+
+.btn-hero-secondary:hover {
+    background-color: #f0f7f0;
+    transform: translateY(-2px);
+}
+
+/* Enlace Login Outline (Nav) */
+.btn-login-outline {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-right: 15px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.btn-login-outline:hover {
+    color: #2e7d32;
+}
+
+/* Features Section */
+.features-section {
+    padding: 5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.feature-card p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.feature-link {
+    color: #2e7d32;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.feature-link:hover {
+    text-decoration: underline;
+}
+
+/* CTA Final */
+.cta-section {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.cta-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.cta-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-container p {
+    color: #b0bec5;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.btn-cta-light {
+    display: inline-block;
+    background-color: #fff;
+    color: #2c3e50;
+    padding: 12px 35px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.btn-cta-light:hover {
+    background-color: #e0e0e0;
+}
+
+/* Footer Simple */
+.main-footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: #fff;
+    color: #888;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
 }

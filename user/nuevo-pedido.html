@@ -20,12 +20,12 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="dashboard.html">Inicio</a></li>
-                    <li><a href="servicios.html">Servicios</a></li>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="paquetes.html">Servicios</a></li>
                     <li><a href="sucursales.html">Sucursales</a></li>
-                    <li><a href="perfil.html">Mi Cuenta</a></li>
+                    <li><a href="dashboard.html">Mi Cuenta</a></li>
                     <li><a href="contacto.html">Contacto</a></li>
-                    <li><a href="#" class="btn-nuevo-pedido" style="background-color: var(--primary-color); color: #fff !important;">Registrar nuevo pedido</a></li>
+                    <li><a href="nuevo-pedido.html" class="btn-nuevo-pedido">Nuevo pedido</a></li>
                 </ul>
             </nav>
         </div>
@@ -74,9 +74,9 @@
                             <label for="servicio">Tipo de Servicio *</label>
                             <select id="servicio" required>
                                 <option value="" disabled selected>Selecciona un servicio...</option>
-                                <option value="lavado">Lavado</option>
-                                <option value="tintoreria">Tintorería</option>
-                                <option value="planchado">Planchado</option>
+                                <option value="lavado">Lavado ($30/kg)</option>
+                                <option value="tintoreria">Tintorería ($80/kg)</option>
+                                <option value="planchado">Planchado ($20/kg)</option>
                             </select>
                         </div>
                     </div>
@@ -147,10 +147,10 @@
                         <div class="input-group">
                             <label class="option-title">Velocidad del Servicio</label>
                             <label class="checkbox-card">
-                                <input type="checkbox" name="express" value="si" checked>
+                                <input type="checkbox" name="express" value="si">
                                 <span class="card-content">
                                     <strong>Servicio Express</strong>
-                                    <small>(+ Costo Extra)</small>
+                                    <small>(+ $50.00 MXN)</small>
                                 </span>
                             </label>
                         </div>
@@ -161,7 +161,7 @@
                         <div class="radio-cards">
                             <label class="radio-card">
                                 <input type="radio" name="pago" value="tarjeta" checked>
-                                <span class="card-content">💳 Tarjeta (Redirigir a pasarela)</span>
+                                <span class="card-content">💳 Tarjeta (Online)</span>
                             </label>
                             <label class="radio-card">
                                 <input type="radio" name="pago" value="efectivo">
@@ -174,14 +174,14 @@
                 <div class="order-summary-box">
                     <h3 class="summary-title">Resumen de tu Pedido</h3>
                     <ul class="summary-details">
-                        <li><strong>Servicio:</strong> Lavado (Hasta 5 kg)</li>
-                        <li><strong>Opciones:</strong> Detergente Normal, Con Suavizante</li>
-                        <li><strong>Logística:</strong> Recoger en Sucursal</li>
-                        <li class="highlight-express">⚡ Servicio Express Incluido</li>
+                        <li id="sum-servicio"><strong>Servicio:</strong> Pendiente</li>
+                        <li id="sum-opciones"><strong>Opciones:</strong> Detergente Normal, Con Suavizante</li>
+                        <li id="sum-logistica"><strong>Logística:</strong> Recoger en Sucursal</li>
+                        <li id="sum-express" class="highlight-express" style="display: none;">⚡ Servicio Express Incluido</li>
                     </ul>
                     <div class="summary-total">
-                        <span>Total a Pagar:</span>
-                        <span class="total-price">$150.00 MXN</span>
+                        <span>Total a Pagar Estimado:</span>
+                        <span class="total-price" id="sum-total">$0.00 MXN</span>
                     </div>
                 </div>
 
@@ -192,6 +192,7 @@
             </form>
         </div>
     </main>
+
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Verificación de seguridad
@@ -203,7 +204,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 2. Autocompletar los datos del cliente logueado
     try {
-        // Reutilizamos la ruta que ya tenías para el dashboard
         const respuesta = await fetch(`/api/cliente/${idCliente}`);
         if (respuesta.ok) {
             const cliente = await respuesta.json();
@@ -216,19 +216,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("No se pudieron precargar los datos del cliente.");
     }
 
+    // --- NUEVO LÓGICA DE RESUMEN DINÁMICO ---
+    const formElementos = document.querySelectorAll('.order-form input, .order-form select');
+    
+    function actualizarResumen() {
+        // Capturar valores actuales
+        const servicioSelect = document.getElementById('servicio');
+        const nombreServicio = servicioSelect.options[servicioSelect.selectedIndex].text;
+        const valorServicio = servicioSelect.value;
+        const kilos = document.getElementById('kilos').value || '0';
+        
+        const detergente = document.querySelector('input[name="detergente"]:checked').nextElementSibling.textContent;
+        const suavizante = document.querySelector('input[name="suavizante"]:checked').value === 'si' ? 'Con Suavizante' : 'Sin Suavizante';
+        const entrega = document.querySelector('input[name="entrega"]:checked').nextElementSibling.textContent;
+        const express = document.querySelector('input[name="express"]').checked;
+
+        // Actualizar textos en el resumen
+        document.getElementById('sum-servicio').innerHTML = `<strong>Servicio:</strong> ${valorServicio ? nombreServicio : 'Pendiente'} (Hasta ${kilos} kg)`;
+        document.getElementById('sum-opciones').innerHTML = `<strong>Opciones:</strong> Detergente ${detergente}, ${suavizante}`;
+        document.getElementById('sum-logistica').innerHTML = `<strong>Logística:</strong> ${entrega}`;
+        document.getElementById('sum-express').style.display = express ? 'block' : 'none';
+
+        // Cálculo de tarifa dinámica
+        let precioBase = 0;
+        if (valorServicio === 'lavado') precioBase = 30;
+        else if (valorServicio === 'tintoreria') precioBase = 80;
+        else if (valorServicio === 'planchado') precioBase = 20;
+
+        let total = precioBase * parseInt(kilos);
+        if (express) total += 50; // Tarifa express fija
+
+        document.getElementById('sum-total').textContent = `$${total.toFixed(2)} MXN`;
+    }
+
+    // Escuchar cualquier cambio en el formulario para actualizar el resumen
+    formElementos.forEach(elemento => {
+        elemento.addEventListener('change', actualizarResumen);
+    });
+
+    // --- FIN DE LÓGICA DE RESUMEN DINÁMICO ---
+
     // 3. Capturar el envío del formulario
     document.querySelector('.order-form').addEventListener('submit', async (e) => {
-        e.preventDefault(); // Evitamos que la página se recargue
+        e.preventDefault(); 
 
-        // Recolectamos los IDs y los inputs tipo "radio" o "checkbox"
         const datosPedido = {
             id_cliente: idCliente,
             id_sucursal: document.getElementById('sucursal').value,
             servicio: document.getElementById('servicio').value,
             kilos: document.getElementById('kilos').value,
             direccion_entrega: document.getElementById('direccion').value,
-            
-            // Para los inputs que son opciones múltiples (radios y checkboxes)
             detergente: document.querySelector('input[name="detergente"]:checked').value,
             suavizante: document.querySelector('input[name="suavizante"]:checked').value,
             entrega: document.querySelector('input[name="entrega"]:checked').value,
@@ -245,10 +282,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const resultado = await respuesta.json();
 
-            if (respuesta.ok) {
-                // Notificamos el éxito y lo enviamos al historial
+            // Verificamos el flujo de pago con tarjeta
+            if (resultado.requirePayment) {
+                alert("Para procesar tu pago con tarjeta, primero debes registrar un método de pago seguro.");
+                window.location.href = 'metodo-pago.html';
+                
+            } else if (resultado.success) {
                 alert(`¡Pedido registrado exitosamente! \nTu número de seguimiento es: P-${String(resultado.id_pedido).padStart(3, '0')}`);
                 window.location.href = 'historial.html'; 
+                
             } else {
                 alert(resultado.error);
             }

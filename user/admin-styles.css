@@ -1,0 +1,186 @@
+/* =========================================================
+   ESTILOS DEL PANEL DE ADMINISTRACIÓN
+   ========================================================= */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+}
+
+.admin-sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar .logo-area {
+    padding: 20px;
+    background-color: #1a252f;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.admin-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #34495e;
+    transition: background 0.3s;
+}
+
+.admin-menu li:hover, .admin-menu li.active {
+    background-color: #2e7d32;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.admin-section {
+    display: none; /* Ocultas por defecto */
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.admin-section.active-section {
+    display: block; /* Muestra solo la activa */
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.admin-select {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.btn-admin-save {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-admin-save:hover { background-color: #1b5e20; }
+
+/* =========================================
+   ADMIN-STYLE.CSS: Diseño Utilitario y Crudo
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* Fuente estándar del sistema para cero distracciones */
+    font-family: Arial, Helvetica, sans-serif; 
+}
+
+.admin-login-body {
+    background-color: #e9ecef; /* Gris neutro de fondo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+}
+
+.login-box {
+    background-color: #ffffff;
+    padding: 30px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.login-box h2 {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    color: #212529;
+}
+
+.login-box p {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 1rem;
+}
+
+/* Foco utilitario estándar (azul genérico de sistema) */
+.form-group input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Botón crudo y directo */
+.btn-login {
+    width: 100%;
+    padding: 10px;
+    background-color: #343a40; /* Gris muy oscuro */
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    background-color: #23272b;
+}

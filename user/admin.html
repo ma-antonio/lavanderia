@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - LAVANDERIA ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-styles.css"> <!-- Asegúrate de que apunte a tu CSS correcto -->
+</head>
+<body style="margin: 0;">
+
+    <div class="admin-layout">
+        <!-- BARRA LATERAL -->
+        <aside class="admin-sidebar">
+            <div class="logo-area">🌿 STAFF LAVANDERÍA</div>
+            <ul class="admin-menu">
+                <li class="active" onclick="verSeccion('pedidos')">Gestión de Pedidos</li>
+                <li onclick="verSeccion('sucursales')">Gestión de Sucursales</li>
+                <li onclick="verSeccion('paquetes')">Catálogo de Paquetes</li>
+                <li onclick="verSeccion('quejas')">Buzón de Quejas</li>
+                <li style="background-color: #c0392b; margin-top: auto;" onclick="cerrarSesion()">Cerrar Sesión</li>
+            </ul>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="admin-main">
+            
+            <!-- SECCIÓN: PEDIDOS -->
+            <section id="sec-pedidos" class="admin-section active-section">
+                <h2>Gestión de Pedidos</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID Pedido</th>
+                            <th>Cliente</th>
+                            <th>Sucursal</th>
+                            <th>Estado Actual</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tbody-pedidos"></tbody>
+                </table>
+            </section>
+
+            <!-- SECCIÓN: SUCURSALES -->
+            <section id="sec-sucursales" class="admin-section">
+                <h2>Gestión y Disponibilidad de Sucursales</h2>
+                
+                <!-- NUEVO: Formulario para agregar sucursal -->
+                <div style="margin-bottom: 2rem; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;">
+                    <h3 style="margin-top: 0; font-size: 1.1rem; color: #2c3e50;">➕ Agregar Nueva Sucursal</h3>
+                    <form id="form-add-sucursal" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                        <div>
+                            <label style="display: block; font-size: 0.9rem; margin-bottom: 5px;">Nombre:</label>
+                            <input type="text" id="new-suc-nombre" required class="admin-select" placeholder="Ej. Sucursal Centro">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="display: block; font-size: 0.9rem; margin-bottom: 5px;">Dirección Completa:</label>
+                            <input type="text" id="new-suc-dir" required class="admin-select" style="width: 100%;" placeholder="Calle, Número, Colonia">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.9rem; margin-bottom: 5px;">Teléfono:</label>
+                            <input type="text" id="new-suc-tel" required class="admin-select" placeholder="55 0000 0000">
+                        </div>
+                        <button type="submit" class="btn-admin-save" style="height: 35px; padding: 0 20px;">Agregar Sucursal</button>
+                    </form>
+                </div>
+
+                <!-- Tabla de Disponibilidad -->
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Sucursal</th>
+                            <th>Zona A (Pequeñas)</th>
+                            <th>Zona B (Medianas)</th>
+                            <th>Zona C (Grandes)</th>
+                            <th>Zona D (Secadoras)</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tbody-sucursales"></tbody>
+                </table>
+            </section>
+
+            <!-- SECCIÓN: PAQUETES -->
+            <section id="sec-paquetes" class="admin-section">
+                <h2>Catálogo de Paquetes</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Paquete</th>
+                            <th>Precio Actual (MXN)</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tbody-paquetes"></tbody>
+                </table>
+            </section>
+
+            <!-- SECCIÓN: QUEJAS -->
+            <section id="sec-quejas" class="admin-section">
+                <h2>Buzón de Quejas y Comentarios</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Mensaje</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tbody-quejas"></tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // 1. SEGURIDAD
+        if (!localStorage.getItem('admin_activo')) {
+            window.location.href = 'admin_login.html';
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('admin_activo');
+            window.location.href = 'admin_login.html';
+        }
+
+        // 2. CONTROL SPA
+        function verSeccion(idSeccion) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active-section'));
+            document.querySelectorAll('.admin-menu li').forEach(li => li.classList.remove('active'));
+            
+            document.getElementById('sec-' + idSeccion).classList.add('active-section');
+            event.target.classList.add('active');
+
+            if(idSeccion === 'pedidos') cargarPedidos();
+            if(idSeccion === 'sucursales') cargarSucursales();
+            if(idSeccion === 'paquetes') cargarPaquetes();
+            if(idSeccion === 'quejas') cargarQuejas();
+        }
+
+        // ==========================================
+        // FUNCIONES CRUD
+        // ==========================================
+
+        // --- PEDIDOS ---
+        async function cargarPedidos() {
+            const res = await fetch('/api/admin/pedidos');
+            const data = await res.json();
+            const tbody = document.getElementById('admin-tbody-pedidos');
+            tbody.innerHTML = '';
+            data.forEach(p => {
+                // NOTA: Ajusta estas palabras si tu BD usa otras distintas para el ENUM
+                const estados = ['Pendiente', 'Proceso', 'Completado', 'Entregado'];
+                let opciones = estados.map(e => `<option value="${e}" ${p.estado_lavado === e ? 'selected' : ''}>${e}</option>`).join('');
+                
+                // Muestra "Desconocido" si se borró el cliente o la sucursal de la BD
+                const nombreCliente = p.nombre_cliente ? `${p.nombre_cliente} ${p.apellidos_cliente || ''}` : '<i style="color:red">Cliente Eliminado</i>';
+                const nombreSucursal = p.nombre_sucursal || '<i style="color:red">Sucursal Eliminada</i>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>P-${String(p.id_pedido).padStart(3,'0')}</strong></td>
+                        <td>${nombreCliente}</td>
+                        <td>${nombreSucursal}</td>
+                        <td><select id="est-ped-${p.id_pedido}" class="admin-select">${opciones}</select></td>
+                        <td><button class="btn-admin-save" onclick="guardarPedido(${p.id_pedido})">Actualizar</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function guardarPedido(id) {
+            const estado = document.getElementById(`est-ped-${id}`).value;
+            try {
+                const res = await fetch(`/api/admin/pedidos/${id}`, {
+                    method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ estado })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert('Estado del pedido actualizado.');
+                } else {
+                    alert('Fallo al actualizar: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error de conexión.');
+            }
+        }
+
+        // --- SUCURSALES ---
+        async function cargarSucursales() {
+            const res = await fetch('/api/admin/sucursales');
+            const data = await res.json();
+            const tbody = document.getElementById('admin-tbody-sucursales');
+            tbody.innerHTML = '';
+            
+            const estadosZona = ['Libre', 'Carga Normal', 'Congestionado'];
+            
+            data.forEach(s => {
+                const generarSelect = (id, zonaVal) => {
+                    return `<select id="${id}" class="admin-select">` + 
+                           estadosZona.map(e => `<option value="${e}" ${zonaVal === e ? 'selected' : ''}>${e}</option>`).join('') + 
+                           `</select>`;
+                };
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.nombre_sucursal}</strong><br><small style="color:#666;">${s.direccion_completa}</small></td>
+                        <td>${generarSelect(`za-${s.id_sucursal}`, s.zona_a)}</td>
+                        <td>${generarSelect(`zb-${s.id_sucursal}`, s.zona_b)}</td>
+                        <td>${generarSelect(`zc-${s.id_sucursal}`, s.zona_c)}</td>
+                        <td>${generarSelect(`zd-${s.id_sucursal}`, s.zona_d)}</td>
+                        <td><button class="btn-admin-save" onclick="guardarSucursal(${s.id_sucursal})">Actualizar</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Evento para agregar sucursal
+        document.getElementById('form-add-sucursal').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const body = {
+                nombre_sucursal: document.getElementById('new-suc-nombre').value,
+                direccion_completa: document.getElementById('new-suc-dir').value,
+                telefono_contacto: document.getElementById('new-suc-tel').value
+            };
+            
+            const btn = e.target.querySelector('button');
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/sucursales', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+                });
+                if(res.ok) {
+                    alert('Sucursal agregada con éxito');
+                    document.getElementById('form-add-sucursal').reset();
+                    cargarSucursales(); // Recarga la tabla de sucursales
+                } else {
+                    alert('Error al agregar sucursal');
+                }
+            } catch(err) {
+                alert('Error de conexión');
+            } finally {
+                btn.textContent = 'Agregar Sucursal';
+                btn.disabled = false;
+            }
+        });
+
+        async function guardarSucursal(id) {
+            const body = {
+                zona_a: document.getElementById(`za-${id}`).value,
+                zona_b: document.getElementById(`zb-${id}`).value,
+                zona_c: document.getElementById(`zc-${id}`).value,
+                zona_d: document.getElementById(`zd-${id}`).value
+            };
+            await fetch(`/api/admin/sucursales/${id}`, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+            });
+            alert('Disponibilidad de zonas actualizada.');
+        }
+
+        // --- PAQUETES ---
+        async function cargarPaquetes() {
+            const res = await fetch('/api/admin/paquetes');
+            const data = await res.json();
+            const tbody = document.getElementById('admin-tbody-paquetes');
+            tbody.innerHTML = '';
+            data.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.id_servicio}</td>
+                        <td><strong>${p.nombre_servicio}</strong></td>
+                        <td><input type="number" id="precio-paq-${p.id_servicio}" value="${p.precio_base}" class="admin-select" style="width: 80px;"></td>
+                        <td><button class="btn-admin-save" onclick="guardarPaquete(${p.id_servicio})">Guardar Precio</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function guardarPaquete(id) {
+            const precio_base = document.getElementById(`precio-paq-${id}`).value;
+            await fetch(`/api/admin/paquetes/${id}`, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ precio_base })
+            });
+            alert('Precio del paquete actualizado correctamente.');
+        }
+
+        // --- QUEJAS ---
+        async function cargarQuejas() {
+            const res = await fetch('/api/admin/quejas');
+            const data = await res.json();
+            const tbody = document.getElementById('admin-tbody-quejas');
+            tbody.innerHTML = '';
+            data.forEach(q => {
+                const estados = ['Pendiente', 'En proceso', 'Resuelto', 'Cerrado'];
+                let opciones = estados.map(e => `<option value="${e}" ${q.estado_queja === e ? 'selected' : ''}>${e}</option>`).join('');
+                const fecha = new Date(q.fecha_envio).toLocaleDateString();
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${fecha}</td>
+                        <td>${q.nombre_completo}</td>
+                        <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${q.mensaje}">${q.mensaje}</td>
+                        <td><select id="est-queja-${q.id_comentario}" class="admin-select">${opciones}</select></td>
+                        <td><button class="btn-admin-save" onclick="guardarQueja(${q.id_comentario})">Actualizar</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function guardarQueja(id) {
+            const estado_queja = document.getElementById(`est-queja-${id}`).value;
+            await fetch(`/api/admin/quejas/${id}`, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ estado_queja })
+            });
+            alert('Estado de la queja actualizado.');
+        }
+
+        // Inicializar la primera pestaña
+        window.onload = cargarPedidos;
+    </script>
+</body>
+</html>
