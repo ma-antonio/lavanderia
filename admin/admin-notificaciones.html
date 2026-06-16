@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h1>Centro de Notificaciones</h1>
+                    <span class="stat-badge alert-danger" id="header-badge">0 No leídas</span>
+                </div>
+                <p class="subtitle">Auditoría automática: Alertas de inventario, pedidos atrasados y clientes.</p>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="toolbar-group">
+                    <select class="filter-select" disabled title="Filtros desactivados en modo auditoría en vivo">
+                        <option value="fecha_desc">Ordenar por: Más recientes</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button type="button" class="btn-util" id="btn-limpiar">Limpiar pantalla</button>
+                    <button type="button" class="btn-action btn-primary" onclick="cargarNotificaciones()">Auditar Ahora ↻</button>
+                </div>
+            </div>
+
+            <div class="notification-list" id="contenedor-notificaciones">
+                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                    Auditando base de datos...
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', cargarNotificaciones);
+
+        async function cargarNotificaciones() {
+            const contenedor = document.getElementById('contenedor-notificaciones');
+            contenedor.innerHTML = '<div style="text-align: center; padding: 40px;">Cargando...</div>';
+
+            try {
+                const response = await fetch('/api/admin/notificaciones');
+                const result = await response.json();
+
+                if (result.success) {
+                    contenedor.innerHTML = '';
+                    const alertas = result.data;
+
+                    // Actualizar contadores
+                    document.getElementById('menu-badge').innerText = alertas.length;
+                    document.getElementById('header-badge').innerText = `${alertas.length} No leídas`;
+
+                    if (alertas.length === 0) {
+                        contenedor.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: #28a745; background: #d4edda; border-radius: 8px; margin-top: 20px;">
+                                <h3 style="margin:0;">✅ Todo en orden</h3>
+                                <p style="margin-top: 5px;">No hay alertas críticas en el sistema en este momento.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Renderizar cada alerta
+                    alertas.forEach((alerta, index) => {
+                        const div = document.createElement('div');
+                        div.className = `notif-item notif-unread ${alerta.prioridad}`;
+                        div.id = `notif-${index}`;
+                        
+                        div.innerHTML = `
+                            <div class="notif-content">
+                                <div class="notif-header">
+                                    <span class="badge-module ${alerta.classModulo}">${alerta.modulo}</span>
+                                    <span class="notif-time">Auditoría en vivo</span>
+                                </div>
+                                <h4 class="notif-title">${alerta.titulo}</h4>
+                                <p class="notif-desc">${alerta.descripcion}</p>
+                                <div class="notif-meta">
+                                    <span><strong>Responsable:</strong> ${alerta.responsable}</span>
+                                </div>
+                            </div>
+                            <div class="notif-actions">
+                                <button type="button" class="btn-action btn-primary" onclick="window.location.href='${alerta.accion}'">Atender</button>
+                                <button type="button" class="btn-icon-success" onclick="ocultarNotificacion('notif-${index}')" title="Descartar de la vista">✔</button>
+                            </div>
+                        `;
+                        contenedor.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                contenedor.innerHTML = '<div style="text-align: center; color: red;">Error al auditar la base de datos.</div>';
+            }
+        }
+
+        // Función para simular que se resolvió la alerta (solo la quita del DOM actual)
+        function ocultarNotificacion(idElemento) {
+            const el = document.getElementById(idElemento);
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.remove();
+                    actualizarContadorUI();
+                }, 300);
+            }
+        }
+
+        function actualizarContadorUI() {
+            const restantes = document.querySelectorAll('.notif-item').length;
+            document.getElementById('menu-badge').innerText = restantes;
+            document.getElementById('header-badge').innerText = `${restantes} No leídas`;
+            
+            if (restantes === 0) {
+                document.getElementById('contenedor-notificaciones').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6c757d;">
+                        Has limpiado todas las alertas de tu pantalla.
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('btn-limpiar').addEventListener('click', () => {
+            document.getElementById('contenedor-notificaciones').innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                    Has limpiado todas las alertas de tu pantalla.
+                </div>
+            `;
+            document.getElementById('menu-badge').innerText = '0';
+            document.getElementById('header-badge').innerText = '0 No leídas';
+        });
+    </script>
+</body>
+</html>

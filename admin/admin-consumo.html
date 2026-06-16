@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumo de Insumos - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Informe de Consumo de Insumos</h1>
+                <p class="subtitle">Análisis detallado del gasto de materiales operativos por periodo y sucursal.</p>
+            </div>
+
+            <div class="admin-panel report-params-panel hide-on-print">
+                <h3>Filtros de Búsqueda</h3>
+                
+                <form id="form-filtros" class="report-form">
+                    <div class="report-filter-grid">
+                        
+                        <div class="form-group">
+                            <label for="fecha-desde">Desde:</label>
+                            <input type="date" id="fecha-desde" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha-hasta">Hasta:</label>
+                            <input type="date" id="fecha-hasta" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filtro-sucursal">Sucursal:</label>
+                            <select id="filtro-sucursal">
+                                <option value="todas">Todas las Sucursales</option>
+                                <option value="1">Roma</option>
+                                <option value="2">Coyoacán</option>
+                                <option value="3">Polanco</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filtro-categoria">Categoría de Insumo:</label>
+                            <select id="filtro-categoria" disabled title="No disponible en la base de datos actual">
+                                <option value="todos">Todas (Por defecto)</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+
+                    <div class="report-actions">
+                        <button type="submit" class="btn-action btn-primary">Generar Informe</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-panel report-results-panel">
+                <div class="panel-header-flex">
+                    <h3>Vista Previa de Consumo</h3>
+                    <span class="table-summary">Resultados para el periodo seleccionado</span>
+                </div>
+
+                <div class="consumption-charts-grid hide-on-print">
+                    <div class="chart-container">
+                        <h4>Consumo por Categoría ($)</h4>
+                        <div class="chart-mockup-bar">
+                            <p class="chart-mockup-text">[Gráfica de Barras]</p>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Insumos más Consumidos (Unidades)</h4>
+                        <div class="chart-mockup-pie">
+                            <p class="chart-mockup-text">[Gráfica de Pastel / Anillo]</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dense-table-wrapper" style="margin-top: 30px;">
+                    <table class="admin-dense-table consumption-table">
+                        <thead>
+                            <tr>
+                                <th>Insumo</th>
+                                <th>Categoría</th>
+                                <th>Unidad</th>
+                                <th class="align-right">Cant. Consumida</th>
+                                <th class="align-right">Costo Unitario Promedio</th>
+                                <th class="align-right">Costo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-resultados">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #666;">Selecciona un rango de fechas y presiona "Generar Informe".</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="align-right">Subtotal del Periodo:</th>
+                                <th class="align-right"><strong id="subtotal-calc">$0.00</strong></th>
+                            </tr>
+                            <tr>
+                                <th colspan="5" class="align-right">IVA (16%):</th>
+                                <th class="align-right" id="iva-calc">$0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="grand-total-highlight">
+                    <span>TOTAL GENERAL DE CONSUMO (CON IVA)</span>
+                    <strong class="total-price" id="total-calc">$0.00 MXN</strong>
+                </div>
+
+            </div>
+
+            <div class="finance-actions hide-on-print" style="border-top: none;">
+                <button type="button" id="btn-aprobar" class="btn-action btn-success-large ticket-btn-primary">Aprobar y Registrar Consumo</button>
+                <button type="button" id="btn-pdf" class="btn-action btn-secondary ticket-btn-secondary">Descargar Reporte PDF</button>
+            </div>
+
+        </main>
+    </div>
+
+    <style>
+        /* Reglas para imprimir en PDF limpio */
+        @media print {
+            .hide-on-print { display: none !important; }
+            .admin-main { margin: 0; padding: 0; width: 100%; }
+            body { background: white; }
+            .admin-panel { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+
+    <script>
+        // Formateador de moneda
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+        // 1. Manejo del Filtro y Petición a la BD
+        document.getElementById('form-filtros').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const tbody = document.getElementById('tabla-resultados');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Cargando datos...</td></tr>';
+            
+            const params = new URLSearchParams({
+                desde: document.getElementById('fecha-desde').value,
+                hasta: document.getElementById('fecha-hasta').value,
+                sucursal: document.getElementById('filtro-sucursal').value
+            });
+
+            try {
+                const response = await fetch(`/api/admin/consumo?${params.toString()}`);
+                const result = await response.json();
+                
+                tbody.innerHTML = ''; // Limpiamos tabla
+                let subtotalAcumulado = 0;
+
+                if (result.success && result.data.length > 0) {
+                    result.data.forEach(item => {
+                        subtotalAcumulado += parseFloat(item.costo_total);
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.insumo}</td>
+                            <td>${item.categoria}</td>
+                            <td>${item.unidad}</td>
+                            <td class="align-right">${item.cantidad_consumida}</td>
+                            <td class="align-right">${formatoMoneda.format(item.costo_unitario)}</td>
+                            <td class="align-right"><strong>${formatoMoneda.format(item.costo_total)}</strong></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No se encontraron consumos en este periodo.</td></tr>';
+                }
+
+                // Cálculos finales
+                const iva = subtotalAcumulado * 0.16;
+                const total = subtotalAcumulado + iva;
+
+                document.getElementById('subtotal-calc').innerText = formatoMoneda.format(subtotalAcumulado);
+                document.getElementById('iva-calc').innerText = formatoMoneda.format(iva);
+                document.getElementById('total-calc').innerText = `${formatoMoneda.format(total)} MXN`;
+
+            } catch (error) {
+                console.error("Error al consultar BD:", error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al conectar con la base de datos.</td></tr>';
+            }
+        });
+
+        // 2. Exportar a PDF (Nativo)
+        document.getElementById('btn-pdf').addEventListener('click', () => {
+            window.print();
+        });
+
+        // 3. Aprobar
+        document.getElementById('btn-aprobar').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/admin/consumo/aprobar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    alert(result.mensaje);
+                }
+            } catch (error) {
+                alert("Hubo un error al procesar la aprobación.");
+            }
+        });
+    </script>
+</body>
+</html>

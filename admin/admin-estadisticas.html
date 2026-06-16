@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Rendimiento y Estadísticas de Servicios</h1>
+                <p class="subtitle">Análisis visual del volumen de ventas y captación de ingresos.</p>
+            </div>
+
+            <div class="admin-toolbar" style="justify-content: flex-start; gap: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="rango-fecha" style="font-weight: bold; color: #495057;">Rango de Fecha</label>
+                    <select id="rango-fecha" style="width: 200px; margin-top: 5px;">
+                        <option value="semana">Última Semana</option>
+                        <option value="mes" selected>Último Mes</option>
+                        <option value="ano">Último Año</option>
+                        <option value="todos">Histórico Completo</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                    <button type="button" id="btn-filtro" class="btn-util">Aplicar Filtro</button>
+                </div>
+            </div>
+
+            <div class="admin-content-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                
+                <div class="admin-panel" style="display: flex; flex-direction: column;">
+                    <h3>Desglose por Método de Pago</h3>
+                    
+                    <div class="chart-placeholder">
+                        <div class="chart-mockup-circle" style="border: 15px solid #e9ecef; border-top-color: #007bff; border-right-color: #28a745; border-bottom-color: #ffc107;"></div>
+                        <p class="chart-mockup-text">Distribución de Ingresos</p>
+                        
+                        <div class="chart-legend" id="leyenda-grafica">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <h3>Resumen del Periodo Seleccionado</h3>
+                    
+                    <div class="dense-table-wrapper">
+                        <table class="admin-dense-table summary-stats-table">
+                            <tbody id="tabla-estadisticas">
+                                <tr><td colspan="2" style="text-align: center;">Cargando estadísticas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+        // Diccionario para traducir días de MySQL a Español
+        const diasEspanol = {
+            'Monday': 'Lunes', 'Tuesday': 'Martes', 'Wednesday': 'Miércoles',
+            'Thursday': 'Jueves', 'Friday': 'Viernes', 'Saturday': 'Sábado', 'Sunday': 'Domingo', 'N/A': 'Sin registros'
+        };
+
+        // Colores para los métodos de pago
+        const coloresPago = {
+            'Efectivo': '#28a745', 'Tarjeta': '#007bff', 'Monedero': '#ffc107', 'Transferencia': '#17a2b8'
+        };
+
+        document.addEventListener('DOMContentLoaded', cargarEstadisticas);
+        document.getElementById('btn-filtro').addEventListener('click', cargarEstadisticas);
+
+        async function cargarEstadisticas() {
+            const rango = document.getElementById('rango-fecha').value;
+            const tabla = document.getElementById('tabla-estadisticas');
+            const leyenda = document.getElementById('leyenda-grafica');
+            
+            try {
+                const response = await fetch(`/api/admin/estadisticas?rango=${rango}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    const res = data.resumen;
+                    const diaTraducido = diasEspanol[data.diaMayorActividad] || data.diaMayorActividad;
+
+                    // 1. Construir la Tabla de Resumen
+                    let htmlTabla = `
+                        <tr class="table-section-title">
+                            <td colspan="2">Métricas Generales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total de Ventas Cerradas</strong></td>
+                            <td class="align-right">${res.total_servicios}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monto Total Generado</strong></td>
+                            <td class="align-right" style="font-size: 1.1rem; color: #28a745; font-weight: bold;">${formatoMoneda.format(res.monto_total)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ticket Promedio</strong></td>
+                            <td class="align-right">${formatoMoneda.format(res.ticket_promedio)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Día de Mayor Actividad</strong></td>
+                            <td class="align-right">${diaTraducido}</td>
+                        </tr>
+                        <tr class="table-section-title">
+                            <td colspan="2">Desglose por Método de Pago</td>
+                        </tr>
+                    `;
+
+                    // 2. Llenar el Desglose y Leyendas
+                    let htmlLeyenda = '';
+                    
+                    if (data.desglose.length === 0) {
+                        htmlTabla += `<tr><td colspan="2" style="text-align:center;">No hay ingresos en este periodo</td></tr>`;
+                        htmlLeyenda = `<span class="legend-item">Sin datos</span>`;
+                    } else {
+                        // Método más usado
+                        let metodoMax = data.desglose[0].metodo_pago; 
+                        let montoMax = 0;
+
+                        data.desglose.forEach(item => {
+                            const color = coloresPago[item.metodo_pago] || '#6c757d';
+                            
+                            // Filas de la tabla
+                            htmlTabla += `
+                                <tr>
+                                    <td><span class="color-box" style="background: ${color}; display: inline-block;"></span> ${item.metodo_pago} (Volumen / Monto)</td>
+                                    <td class="align-right">${item.volumen} ops. / ${formatoMoneda.format(item.monto)}</td>
+                                </tr>
+                            `;
+
+                            // Leyenda de la gráfica
+                            htmlLeyenda += `<span class="legend-item"><span class="color-box" style="background: ${color};"></span> ${item.metodo_pago}</span>`;
+
+                            if(parseFloat(item.monto) > montoMax) {
+                                montoMax = parseFloat(item.monto);
+                                metodoMax = item.metodo_pago;
+                            }
+                        });
+
+                        // Insertar el método preferido al final de las métricas generales
+                        htmlTabla = htmlTabla.replace(
+                            '<tr class="table-section-title">\n                            <td colspan="2">Desglose por Método de Pago</td>',
+                            `<tr>
+                                <td><strong>Método Preferido</strong></td>
+                                <td class="align-right">${metodoMax}</td>
+                            </tr>
+                            <tr class="table-section-title">
+                                <td colspan="2">Desglose por Método de Pago</td>`
+                        );
+                    }
+
+                    tabla.innerHTML = htmlTabla;
+                    leyenda.innerHTML = htmlLeyenda;
+
+                } else {
+                    tabla.innerHTML = '<tr><td colspan="2" style="text-align: center; color: red;">Error en la consulta</td></tr>';
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                tabla.innerHTML = '<tr><td colspan="2" style="text-align: center; color: red;">Error de conexión con el servidor</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

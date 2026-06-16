@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logística y Envíos - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Control de Rutas y Envíos</h1>
+                <p class="subtitle">Monitoreo de pedidos en tránsito y gestión de entregas.</p>
+            </div>
+
+            <div class="inventory-stats" style="margin-bottom: 20px;">
+                <span class="stat-badge">Total en Logística: <strong id="stat-total">0</strong></span>
+                <span class="stat-badge alert-warning" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">Pendientes de Salida: <strong id="stat-pendientes">0</strong></span>
+                <span class="stat-badge" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;">Entregados: <strong id="stat-completados">0</strong></span>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="toolbar-group">
+                    <input type="text" id="input-busqueda" placeholder="Buscar por cliente, folio o calle..." class="search-input" style="width: 300px;">
+                    <select id="filtro-estado" class="filter-select">
+                        <option value="todos">Todos los Estados</option>
+                        <option value="Listo">Pendientes de Salida</option>
+                        <option value="Entregado">Completados</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button type="button" class="btn-util" onclick="alert('Función de asignación no soportada por la base de datos actual.')">Asignar Repartidor</button>
+                    <button type="button" id="btn-actualizar" class="btn-action btn-primary">Actualizar Vista ↻</button>
+                </div>
+            </div>
+
+            <div class="admin-panel" style="padding: 0; overflow: hidden;">
+                <div class="dense-table-wrapper" style="border: none; max-height: calc(100vh - 250px); overflow-y: auto;">
+                    <table class="admin-dense-table logistics-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 90px;">Folio</th>
+                                <th style="width: 180px;">Cliente</th>
+                                <th>Dirección de Entrega</th>
+                                <th style="width: 160px;">Entrega Acordada</th>
+                                <th style="width: 130px;">Estado BD</th>
+                                <th style="width: 130px; text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-envios">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">Cargando logística...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let enviosGlobal = [];
+
+        document.addEventListener('DOMContentLoaded', cargarEnvios);
+        document.getElementById('btn-actualizar').addEventListener('click', cargarEnvios);
+        document.getElementById('input-busqueda').addEventListener('input', renderizarTabla);
+        document.getElementById('filtro-estado').addEventListener('change', renderizarTabla);
+
+        async function cargarEnvios() {
+            try {
+                const response = await fetch('/api/admin/envios');
+                const result = await response.json();
+                
+                if (result.success) {
+                    enviosGlobal = result.data;
+                    renderizarTabla();
+                } else {
+                    alert('Error al cargar datos de logística');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('tabla-envios').innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error de conexión con el servidor</td></tr>';
+            }
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById('tabla-envios');
+            const terminoBusqueda = document.getElementById('input-busqueda').value.toLowerCase();
+            const filtroEstado = document.getElementById('filtro-estado').value;
+            
+            tbody.innerHTML = '';
+            
+            let total = 0;
+            let pendientes = 0;
+            let completados = 0;
+
+            const enviosFiltrados = enviosGlobal.filter(envio => {
+                const folioStr = `F-${envio.id_pedido.toString().padStart(3, '0')}`.toLowerCase();
+                const clienteStr = `${envio.nombre_cliente || ''} ${envio.apellidos_cliente || ''}`.toLowerCase();
+                const direccionStr = `${envio.calle_y_numero || ''} ${envio.colonia || ''}`.toLowerCase();
+                
+                const coincideBusqueda = folioStr.includes(terminoBusqueda) || clienteStr.includes(terminoBusqueda) || direccionStr.includes(terminoBusqueda);
+                const coincideEstado = filtroEstado === 'todos' || envio.estado_lavado === filtroEstado;
+                
+                return coincideBusqueda && coincideEstado;
+            });
+
+            if (enviosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hay pedidos para logística en el criterio seleccionado.</td></tr>';
+                document.getElementById('stat-total').innerText = '0';
+                document.getElementById('stat-pendientes').innerText = '0';
+                document.getElementById('stat-completados').innerText = '0';
+                return;
+            }
+
+            enviosFiltrados.forEach(envio => {
+                total++;
+                if (envio.estado_lavado === 'Listo') pendientes++;
+                if (envio.estado_lavado === 'Entregado') completados++;
+
+                const folioLimpio = `F-${envio.id_pedido.toString().padStart(3, '0')}`;
+                const nombreCompleto = `${envio.nombre_cliente || 'Cliente'} ${envio.apellidos_cliente || ''}`;
+                const telefono = envio.telefono_contacto ? `📞 ${envio.telefono_contacto}` : 'Sin teléfono';
+                const direccionPrincipal = envio.calle_y_numero || 'Recoge en sucursal';
+                const colonia = envio.colonia || '';
+                
+                let fechaFormateada = 'Sin fecha';
+                if (envio.fecha_entrega_estimada) {
+                    const d = new Date(envio.fecha_entrega_estimada);
+                    fechaFormateada = d.toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                }
+
+                const esEntregado = envio.estado_lavado === 'Entregado';
+                const pillClass = esEntregado ? 'logistics-delivered' : 'logistics-pending';
+                const pillText = esEntregado ? 'Entregado' : 'Pendiente Salida';
+                
+                const botonAccion = esEntregado 
+                    ? `<button type="button" class="btn-small" disabled style="opacity: 0.5;">Cerrado</button>`
+                    : `<button type="button" class="btn-small" style="background-color: #007bff; color: white;" onclick="despacharYEntregar(${envio.id_pedido})">Dar Salida / Entregar</button>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${folioLimpio}</strong></td>
+                    <td>${nombreCompleto}<br><small class="text-muted">${telefono}</small></td>
+                    <td class="address-cell">${direccionPrincipal}<br><small class="text-muted">${colonia}</small></td>
+                    <td><strong>${fechaFormateada}</strong></td>
+                    <td><span class="status-pill ${pillClass}">${pillText}</span></td>
+                    <td style="text-align: center;">${botonAccion}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pendientes').innerText = pendientes;
+            document.getElementById('stat-completados').innerText = completados;
+        }
+
+        async function despacharYEntregar(idPedido) {
+            if(!confirm('¿Confirmar que el pedido fue entregado satisfactoriamente al cliente?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/envios/${idPedido}/entregar`, {
+                    method: 'PUT'
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    cargarEnvios(); // Recargar para actualizar UI
+                } else {
+                    alert('Error al actualizar el estado de envío.');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert('Ocurrió un error al contactar al servidor.');
+            }
+        }
+    </script>
+</body>
+</html>

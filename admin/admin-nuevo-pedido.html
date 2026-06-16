@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Pedido - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Registrar Nuevo Pedido</h1>
+                <span class="folio-badge">Caja Operativa</span>
+            </div>
+
+            <div class="admin-content-grid">
+                
+                <div class="admin-form-column">
+                    <form id="form-pedido" class="compact-form">
+                        
+                        <div class="admin-panel">
+                            <h3>1. Información del Cliente</h3>
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label for="cliente-nombre">Nombre Completo *</label>
+                                    <input type="text" id="cliente-nombre" placeholder="Ej. Juan García" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cliente-tel">Teléfono *</label>
+                                    <input type="tel" id="cliente-tel" placeholder="10 dígitos" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente-dir">Dirección (Solo si es a domicilio)</label>
+                                <input type="text" id="cliente-dir" placeholder="Opcional">
+                            </div>
+                        </div>
+
+                        <div class="admin-panel">
+                            <h3>2. Especificaciones Generales</h3>
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label for="servicio-tipo">Servicio Principal</label>
+                                    <select id="servicio-tipo" class="calc-trigger">
+                                        <option value="80">Lavado Estandar ($80/kg)</option>
+                                        <option value="150">Tintorería ($150/pza)</option>
+                                        <option value="50">Solo Planchado ($50/pza)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="servicio-peso">Cantidad / Peso (Kg)</label>
+                                    <input type="number" id="servicio-peso" min="1" value="1" class="calc-trigger">
+                                </div>
+                                <div class="form-group">
+                                    <label for="servicio-detergente">Detergente</label>
+                                    <select id="servicio-detergente">
+                                        <option value="Normal">Normal</option>
+                                        <option value="Hipoalergénico">Hipoalergénico</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label>Suavizante</label>
+                                    <div class="compact-radio-group">
+                                        <label><input type="radio" name="suav" value="Sí" checked> Sí</label>
+                                        <label><input type="radio" name="suav" value="No"> No</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Entrega</label>
+                                    <div class="compact-radio-group">
+                                        <label><input type="radio" name="entrega" value="Sucursal" checked> Sucursal</label>
+                                        <label><input type="radio" name="entrega" value="Domicilio"> Domicilio</label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; margin-top: 25px;">
+                                    <label><input type="checkbox" id="express" class="calc-trigger"> Express (+$50)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-panel">
+                            <div class="panel-header-flex">
+                                <h3>3. Notas y Observaciones de Prendas</h3>
+                            </div>
+                            <div class="form-group">
+                                <textarea id="observaciones-prendas" rows="3" placeholder="Ej. 1 saco de lana con mancha en la solapa, 2 camisas blancas..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="admin-summary-column">
+                    <div class="admin-summary-card">
+                        <h3>Resumen de Cobro</h3>
+                        
+                        <div class="summary-line">
+                            <span>Servicio Base</span>
+                            <span id="resumen-base">$80.00</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Servicio Express</span>
+                            <span id="resumen-express">$0.00</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <span id="resumen-subtotal">$80.00</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>IVA (16%)</span>
+                            <span id="resumen-iva">$12.80</span>
+                        </div>
+                        
+                        <div class="summary-total" style="margin-top: 15px; font-size: 1.2rem;">
+                            <span>Total a Pagar</span>
+                            <span id="resumen-total">$92.80</span>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 25px;">
+                            <label>Método de Pago</label>
+                            <select id="metodo-pago" style="width: 100%;">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta">Tarjeta (Terminal)</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
+
+                        <button type="button" id="btn-guardar" class="btn-success-large" style="width: 100%; margin-top: 20px;">Confirmar y Guardar Pedido</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        let granTotal = 0;
+
+        // Lógica para calcular el cobro en tiempo real
+        function calcularTotal() {
+            const precioBase = parseFloat(document.getElementById('servicio-tipo').value);
+            const cantidad = parseFloat(document.getElementById('servicio-peso').value) || 1;
+            const esExpress = document.getElementById('express').checked;
+
+            const costoBase = precioBase * cantidad;
+            const costoExpress = esExpress ? 50 : 0;
+            const subtotal = costoBase + costoExpress;
+            const iva = subtotal * 0.16;
+            granTotal = subtotal + iva;
+
+            document.getElementById('resumen-base').innerText = formatoMoneda.format(costoBase);
+            document.getElementById('resumen-express').innerText = formatoMoneda.format(costoExpress);
+            document.getElementById('resumen-subtotal').innerText = formatoMoneda.format(subtotal);
+            document.getElementById('resumen-iva').innerText = formatoMoneda.format(iva);
+            document.getElementById('resumen-total').innerText = formatoMoneda.format(granTotal);
+        }
+
+        // Agregar eventos a los inputs que cambian el precio
+        document.querySelectorAll('.calc-trigger').forEach(input => {
+            input.addEventListener('input', calcularTotal);
+            input.addEventListener('change', calcularTotal);
+        });
+
+        // Guardar el pedido en la BD
+        document.getElementById('btn-guardar').addEventListener('click', async () => {
+            const nombre = document.getElementById('cliente-nombre').value;
+            const tel = document.getElementById('cliente-tel').value;
+
+            if (!nombre || !tel) {
+                return alert("El nombre y teléfono del cliente son obligatorios.");
+            }
+
+            // Construir el texto de las notas con las selecciones
+            const tipoText = document.getElementById('servicio-tipo').options[document.getElementById('servicio-tipo').selectedIndex].text;
+            const cantidad = document.getElementById('servicio-peso').value;
+            const detergente = document.getElementById('servicio-detergente').value;
+            const suav = document.querySelector('input[name="suav"]:checked').value;
+            const entrega = document.querySelector('input[name="entrega"]:checked').value;
+            const obs = document.getElementById('observaciones-prendas').value;
+            const dir = document.getElementById('cliente-dir').value;
+
+            let notasGeneradas = `${tipoText} x ${cantidad} | Det: ${detergente} | Suav: ${suav} | Entrega: ${entrega}`;
+            if (dir) notasGeneradas += ` | Dir: ${dir}`;
+            if (obs) notasGeneradas += ` || Prendas: ${obs}`;
+
+            const payload = {
+                cliente_nombre: nombre,
+                cliente_tel: tel,
+                total: granTotal,
+                metodo_pago: document.getElementById('metodo-pago').value,
+                notas: notasGeneradas,
+                express: document.getElementById('express').checked
+            };
+
+            try {
+                const response = await fetch('/api/admin/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`¡${result.mensaje} Folio asignado: F-${result.folio}`);
+                    window.location.reload(); // Limpiar formulario
+                } else {
+                    alert(result.error || 'Hubo un problema al guardar el pedido.');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Ocurrió un error de conexión.");
+            }
+        });
+
+        // Inicializar cálculos al cargar la página
+        calcularTotal();
+    </script>
+</body>
+</html>

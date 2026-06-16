@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturación - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+       <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header hide-on-print">
+                <h1>Generar Recibo y Facturación Electrónica</h1>
+                <p class="subtitle">Emisión de comprobantes y actualización fiscal.</p>
+            </div>
+
+            <div class="admin-content-grid" style="grid-template-columns: 1fr 450px;">
+                
+                <div class="admin-form-column hide-on-print">
+                    <div class="admin-panel">
+                        <h3>Datos de la Venta</h3>
+                        
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="fact-id">ID de la Venta *</label>
+                                <div style="display: flex; gap: 5px;">
+                                    <input type="number" id="fact-id" placeholder="Ej. 1">
+                                    <button type="button" id="btn-buscar" class="btn-util">Buscar</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="fact-monto">Monto Total</label>
+                                <input type="text" id="fact-monto" value="$0.00" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="fact-cliente">Nombre del Cliente</label>
+                                <input type="text" id="fact-cliente" readonly style="background-color: #e9ecef;">
+                                <input type="hidden" id="fact-id-cliente">
+                            </div>
+                            <div class="form-group">
+                                <label for="fact-metodo">Método de Pago</label>
+                                <input type="text" id="fact-metodo" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ced4da;">
+                            <label><input type="checkbox" id="check-factura" checked> <strong>Requiere Factura Fiscal (CFDI)</strong></label>
+                        </div>
+
+                        <div id="seccion-fiscal" style="margin-top: 15px;">
+                            <h4 style="margin-bottom: 10px; color: #495057;">Datos Fiscales Obligatorios</h4>
+                            
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label for="fact-rfc">RFC *</label>
+                                    <input type="text" id="fact-rfc" placeholder="XAXX010101000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fact-cp">Dirección Fiscal / CP *</label>
+                                    <input type="text" id="fact-cp" placeholder="Código Postal o Dirección">
+                                </div>
+                            </div>
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label for="fact-regimen">Régimen Fiscal *</label>
+                                    <select id="fact-regimen">
+                                        <option>601 - General de Ley Personas Morales</option>
+                                        <option>612 - Personas Físicas con Actividades Emp.</option>
+                                        <option selected>616 - Sin obligaciones fiscales</option>
+                                        <option>626 - RESICO</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fact-uso">Uso de CFDI *</label>
+                                    <select id="fact-uso" id="input-uso">
+                                        <option>G01 - Adquisición de mercancías</option>
+                                        <option selected>G03 - Gastos en general</option>
+                                        <option>S01 - Sin efectos fiscales</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="fact-correo">Correo Electrónico *</label>
+                            <input type="email" id="fact-correo" placeholder="correo@ejemplo.com">
+                        </div>
+
+                        <button type="button" id="btn-nota-simple" class="btn-action btn-secondary" style="width: 100%; margin-top: 15px;">Imprimir Recibo Simple</button>
+                    </div>
+                </div>
+
+                <div class="admin-summary-column">
+                    <div class="admin-panel" style="display: flex; flex-direction: column; align-items: center;">
+                        <h3 class="hide-on-print" style="width: 100%; text-align: left;">Vista Previa</h3>
+                        
+                        <div id="area-impresion" class="ticket-paper" style="transform: scale(0.9); margin-top: -10px; margin-bottom: 10px;">
+                            <div class="ticket-brand">
+                                <h2>LAVANDERÍA ERP</h2>
+                                <p id="preview-tipo-doc" style="font-size: 0.7rem;">FACTURA ELECTRÓNICA CFDI</p>
+                            </div>
+                            <div class="ticket-info">
+                                <p><strong>Venta Folio:</strong> <span id="preview-folio">---</span></p>
+                                <p><strong>Cliente:</strong> <span id="preview-cliente">---</span></p>
+                                <p><strong>RFC:</strong> <span id="preview-rfc">---</span></p>
+                            </div>
+                            <table class="ticket-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left;">Desc.</th>
+                                        <th style="text-align: right;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Servicios de Lavandería</td>
+                                        <td id="preview-monto-linea" style="text-align: right;">$0.00</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td style="text-align: right; font-weight: bold;">Subtotal</td>
+                                        <td id="preview-subtotal" style="text-align: right;">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right; font-weight: bold;">IVA 16%</td>
+                                        <td id="preview-iva" style="text-align: right;">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right; font-weight: bold; padding-top: 10px;">TOTAL</td>
+                                        <td id="preview-total" style="text-align: right; font-weight: bold; font-size: 1.1rem; padding-top: 10px;">$0.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <button type="button" id="btn-timbrar" class="btn-success-large hide-on-print" style="margin-top: 0;">Guardar Datos y Enviar</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <style>
+        @media print {
+            .hide-on-print { display: none !important; }
+            .admin-main, .admin-content-grid { margin: 0; padding: 0; display: block; width: 100%; }
+            .admin-summary-column { width: 100%; }
+            .ticket-paper { transform: scale(1) !important; border: none; box-shadow: none; margin: 0 auto; }
+        }
+    </style>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        let ventaActual = null;
+
+        // Toggle para ocultar sección fiscal
+        document.getElementById('check-factura').addEventListener('change', function() {
+            document.getElementById('seccion-fiscal').style.display = this.checked ? 'block' : 'none';
+            document.getElementById('preview-tipo-doc').innerText = this.checked ? 'FACTURA ELECTRÓNICA CFDI' : 'NOTA DE VENTA';
+            document.getElementById('preview-rfc').innerText = this.checked ? (document.getElementById('fact-rfc').value || 'XAXX010101000') : 'Público en General';
+        });
+
+        // Buscar Venta en BD
+        document.getElementById('btn-buscar').addEventListener('click', async () => {
+            const idVenta = document.getElementById('fact-id').value;
+            if (!idVenta) return alert('Ingresa un ID de Venta válido');
+
+            try {
+                const response = await fetch(`/api/admin/facturacion/buscar/${idVenta}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    ventaActual = result.data;
+                    const nombreCompleto = ventaActual.nombre_cliente ? `${ventaActual.nombre_cliente} ${ventaActual.apellidos_cliente || ''}` : 'Público en General';
+                    
+                    // Llenar formulario
+                    document.getElementById('fact-monto').value = formatoMoneda.format(ventaActual.total_venta);
+                    document.getElementById('fact-cliente').value = nombreCompleto;
+                    document.getElementById('fact-id-cliente').value = ventaActual.id_cliente || '';
+                    document.getElementById('fact-metodo').value = ventaActual.metodo_pago;
+                    document.getElementById('fact-correo').value = ventaActual.correo_electronico || '';
+                    document.getElementById('fact-rfc').value = ventaActual.rfc || '';
+                    document.getElementById('fact-cp').value = ventaActual.direccion_fiscal || '';
+
+                    // Actualizar Vista Previa Matemática
+                    const total = parseFloat(ventaActual.total_venta);
+                    const subtotal = total / 1.16;
+                    const iva = total - subtotal;
+
+                    document.getElementById('preview-folio').innerText = `V-${ventaActual.id_venta}`;
+                    document.getElementById('preview-cliente').innerText = nombreCompleto;
+                    document.getElementById('preview-rfc').innerText = ventaActual.rfc || 'XAXX010101000';
+                    document.getElementById('preview-monto-linea').innerText = formatoMoneda.format(total);
+                    document.getElementById('preview-subtotal').innerText = formatoMoneda.format(subtotal);
+                    document.getElementById('preview-iva').innerText = formatoMoneda.format(iva);
+                    document.getElementById('preview-total').innerText = formatoMoneda.format(total);
+                } else {
+                    alert(result.mensaje);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al conectar con el servidor.");
+            }
+        });
+
+        // Simular Timbrado y Guardar RFC
+        document.getElementById('btn-timbrar').addEventListener('click', async () => {
+            if (!ventaActual) return alert('Primero debes buscar una venta.');
+
+            const datosFiscales = {
+                id_cliente: document.getElementById('fact-id-cliente').value,
+                rfc: document.getElementById('fact-rfc').value,
+                direccion_fiscal: document.getElementById('fact-cp').value
+            };
+
+            try {
+                const response = await fetch('/api/admin/facturacion/timbrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosFiscales)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.mensaje);
+                    window.print(); // Dispara la impresión del recibo
+                }
+            } catch (error) {
+                alert('Ocurrió un error al procesar la facturación.');
+            }
+        });
+
+        // Imprimir Recibo Simple
+        document.getElementById('btn-nota-simple').addEventListener('click', () => {
+            if (!ventaActual) return alert('Primero debes buscar una venta.');
+            document.getElementById('check-factura').checked = false;
+            document.getElementById('check-factura').dispatchEvent(new Event('change'));
+            window.print();
+        });
+    </script>
+</body>
+</html>

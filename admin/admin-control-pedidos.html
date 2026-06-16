@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Pedidos - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+       <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Control de Pedidos en Tiempo Real</h1>
+                <div class="header-stats">
+                    <span class="stat-counter"><strong id="count-pendientes">0</strong> Pendientes/Proceso</span>
+                    <span class="stat-counter stat-urgent"><strong id="count-urgentes">0</strong> Urgentes (< 24h)</span>
+                </div>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="toolbar-group">
+                    <input type="text" id="input-busqueda" placeholder="Buscar folio o cliente..." class="search-input">
+                    <select id="filtro-estado" class="filter-select">
+                        <option value="todos">Todos los Estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Proceso">En Proceso</option>
+                        <option value="Listo">Listo para entregar</option>
+                        <option value="Entregado">Entregado</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button type="button" id="btn-actualizar" class="btn-util">Actualizar Vista ↻</button>
+                </div>
+            </div>
+
+            <div class="dense-table-wrapper" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+                <table class="admin-dense-table control-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Folio</th>
+                            <th style="width: 80px;">Prioridad</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Entrega Acordada</th>
+                            <th>Observaciones</th>
+                            <th style="width: 160px;">Estado Actual</th>
+                            <th style="width: 60px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pedidos">
+                        <tr>
+                            <td colspan="8" style="text-align: center;">Cargando pedidos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let pedidosGlobal = [];
+
+        document.addEventListener('DOMContentLoaded', cargarPedidos);
+        document.getElementById('btn-actualizar').addEventListener('click', cargarPedidos);
+        document.getElementById('input-busqueda').addEventListener('input', renderizarTabla);
+        document.getElementById('filtro-estado').addEventListener('change', renderizarTabla);
+
+        async function cargarPedidos() {
+            try {
+                const response = await fetch('/api/admin/pedidos');
+                const result = await response.json();
+                
+                if (result.success) {
+                    pedidosGlobal = result.data;
+                    renderizarTabla();
+                } else {
+                    alert('Error al cargar la base de datos');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('tabla-pedidos').innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error de conexión</td></tr>';
+            }
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById('tabla-pedidos');
+            const terminoBusqueda = document.getElementById('input-busqueda').value.toLowerCase();
+            const filtroEstado = document.getElementById('filtro-estado').value;
+            
+            tbody.innerHTML = '';
+            
+            let pendientes = 0;
+            let urgentes = 0;
+            const ahora = new Date();
+
+            // Filtrar y renderizar
+            const pedidosFiltrados = pedidosGlobal.filter(pedido => {
+                const folioStr = `F-${pedido.id_pedido.toString().padStart(3, '0')}`.toLowerCase();
+                const clienteStr = `${pedido.nombre_cliente || ''} ${pedido.apellidos_cliente || ''}`.toLowerCase();
+                
+                const coincideBusqueda = folioStr.includes(terminoBusqueda) || clienteStr.includes(terminoBusqueda);
+                const coincideEstado = filtroEstado === 'todos' || pedido.estado_lavado === filtroEstado;
+                
+                return coincideBusqueda && coincideEstado;
+            });
+
+            if (pedidosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No se encontraron pedidos.</td></tr>';
+                return;
+            }
+
+            pedidosFiltrados.forEach(pedido => {
+                // Estadísticas
+                if (pedido.estado_lavado === 'Pendiente' || pedido.estado_lavado === 'Proceso') {
+                    pendientes++;
+                }
+
+                // Cálculo de prioridad (Urgente si faltan menos de 24h para la entrega)
+                let esUrgente = false;
+                let textoEntrega = 'Sin fecha';
+                if (pedido.fecha_entrega_estimada) {
+                    const fechaEntrega = new Date(pedido.fecha_entrega_estimada);
+                    const horasRestantes = (fechaEntrega - ahora) / (1000 * 60 * 60);
+                    
+                    if (horasRestantes > 0 && horasRestantes <= 24 && pedido.estado_lavado !== 'Entregado') {
+                        esUrgente = true;
+                        urgentes++;
+                    }
+                    
+                    // Formatear fecha
+                    textoEntrega = fechaEntrega.toLocaleString('es-MX', { 
+                        weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' 
+                    });
+                }
+
+                const prioridadHTML = esUrgente 
+                    ? `<span class="badge-priority badge-express">EXPRESS</span>` 
+                    : `<span class="badge-priority badge-normal">Normal</span>`;
+
+                const nombreCompleto = `${pedido.nombre_cliente || 'Cliente'} ${pedido.apellidos_cliente || 'Mostrador'}`;
+                const folioLimpio = `F-${pedido.id_pedido.toString().padStart(3, '0')}`;
+
+                const tr = document.createElement('tr');
+                // Estilo para fila lista o express si gustas mantenerlo
+                if (esUrgente && pedido.estado_lavado !== 'Entregado') tr.classList.add('row-express');
+                if (pedido.estado_lavado === 'Listo') tr.classList.add('row-ready');
+
+                tr.innerHTML = `
+                    <td><strong>${folioLimpio}</strong></td>
+                    <td>${prioridadHTML}</td>
+                    <td>${nombreCompleto}</td>
+                    <td>Servicio Estándar</td>
+                    <td><strong>${textoEntrega}</strong></td>
+                    <td>${pedido.notas_especiales || '-'}</td>
+                    <td>
+                        <select class="status-select select-${pedido.estado_lavado.toLowerCase()}" id="select-${pedido.id_pedido}">
+                            <option value="Pendiente" ${pedido.estado_lavado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="Proceso" ${pedido.estado_lavado === 'Proceso' ? 'selected' : ''}>En Proceso</option>
+                            <option value="Listo" ${pedido.estado_lavado === 'Listo' ? 'selected' : ''}>Listo para entregar</option>
+                            <option value="Entregado" ${pedido.estado_lavado === 'Entregado' ? 'selected' : ''}>Entregado</option>
+                        </select>
+                    </td>
+                    <td><button type="button" class="btn-icon-success" onclick="guardarEstado(${pedido.id_pedido})">✔</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Actualizar contadores del Header
+            document.getElementById('count-pendientes').innerText = pendientes;
+            document.getElementById('count-urgentes').innerText = urgentes;
+        }
+
+        async function guardarEstado(idPedido) {
+            const nuevoEstado = document.getElementById(`select-${idPedido}`).value;
+            
+            try {
+                const response = await fetch(`/api/admin/pedidos/${idPedido}/estado`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: nuevoEstado })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Estado del pedido guardado correctamente en la BD.');
+                    cargarPedidos(); // Recargar para actualizar colores y estadísticas
+                } else {
+                    alert('Error al guardar el estado.');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert('Ocurrió un error de conexión al actualizar.');
+            }
+        }
+    </script>
+</body>
+</html>

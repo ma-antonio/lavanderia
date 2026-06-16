@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+       <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Gestión de Inventario</h1>
+                <div class="inventory-stats">
+                    <span class="stat-badge">Total Productos: <strong id="stat-total">0</strong></span>
+                    <span class="stat-badge alert-danger">⚠️ Faltantes o Bajos: <strong id="stat-bajos">0</strong></span>
+                </div>
+            </div>
+
+            <div class="admin-toolbar">
+                <div class="toolbar-group">
+                    <input type="text" id="input-busqueda" placeholder="Buscar producto por nombre..." class="search-input" style="width: 350px;">
+                    <select class="filter-select" disabled title="Categorías no configuradas en Base de Datos">
+                        <option>Todas las Categorías (General)</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button type="button" id="btn-abrir-modal" class="btn-action btn-primary">+ Agregar Producto</button>
+                </div>
+            </div>
+
+            <div class="dense-table-wrapper" style="border: 1px solid #ced4da; max-height: calc(100vh - 220px); overflow-y: auto;">
+                <table class="admin-dense-table inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th style="text-align: right;">Stock Actual</th>
+                            <th style="text-align: right;">Stock Min.</th>
+                            <th>Unidad</th>
+                            <th>Estado BD</th>
+                            <th>Última Entrada</th>
+                            <th style="width: 150px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-inventario">
+                        <tr><td colspan="8" style="text-align: center;">Cargando inventario...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modal-agregar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; padding: 25px; border-radius: 8px; width: 400px; max-width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 1.2rem;">Agregar Nuevo Producto</h2>
+                <button type="button" id="btn-cerrar-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <form id="form-nuevo-insumo">
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nombre del Insumo *</label>
+                    <input type="text" id="add-nombre" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Unidad de Medida *</label>
+                    <select id="add-unidad" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="Litros">Litros</option>
+                        <option value="Kilos">Kilos</option>
+                        <option value="Piezas">Piezas</option>
+                        <option value="Rollos">Rollos</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Stock Inicial</label>
+                        <input type="number" step="0.01" id="add-actual" required value="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Stock Mínimo (Alerta)</label>
+                        <input type="number" step="0.01" id="add-minimo" required value="5" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-action btn-secondary" id="btn-cancelar" style="padding: 8px 15px;">Cancelar</button>
+                    <button type="submit" class="btn-action btn-primary" style="padding: 8px 15px;">Guardar Insumo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Cargar inventario al iniciar
+        document.addEventListener('DOMContentLoaded', cargarInventario);
+        
+        // Búsqueda en tiempo real
+        document.getElementById('input-busqueda').addEventListener('input', cargarInventario);
+
+        async function cargarInventario() {
+            const buscar = document.getElementById('input-busqueda').value;
+            const tabla = document.getElementById('tabla-inventario');
+            
+            try {
+                const response = await fetch(`/api/admin/inventario?buscar=${encodeURIComponent(buscar)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    tabla.innerHTML = '';
+                    let totalProductos = result.data.length;
+                    let totalAlertas = 0;
+
+                    if (totalProductos === 0) {
+                        tabla.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay productos en el inventario.</td></tr>';
+                    }
+
+                    result.data.forEach(item => {
+                        const actual = parseFloat(item.stock_actual);
+                        const minimo = parseFloat(item.stock_minimo);
+                        
+                        // Lógica de cálculo de estado
+                        let estadoPill = '';
+                        let rowClass = '';
+                        
+                        if (actual <= 0) {
+                            estadoPill = '<span class="status-pill status-empty">Agotado</span>';
+                            rowClass = 'row-critical';
+                            totalAlertas++;
+                        } else if (actual <= minimo) {
+                            estadoPill = '<span class="status-pill status-low">Bajo</span>';
+                            totalAlertas++;
+                        } else {
+                            estadoPill = '<span class="status-pill status-ok">Suficiente</span>';
+                        }
+
+                        const tr = document.createElement('tr');
+                        if(rowClass) tr.classList.add(rowClass);
+                        
+                        tr.innerHTML = `
+                            <td><strong>${item.nombre_insumo}</strong></td>
+                            <td style="color: #6c757d;">General</td>
+                            <td style="text-align: right;"><strong>${actual}</strong></td>
+                            <td style="text-align: right; color: #6c757d;">${minimo}</td>
+                            <td>${item.unidad_medida}</td>
+                            <td>${estadoPill}</td>
+                            <td style="color: #6c757d;">No registrado</td>
+                            <td style="text-align: center;">
+                                <button class="btn-small btn-danger" onclick="eliminarInsumo(${item.id_insumo}, '${item.nombre_insumo}')">Eliminar</button>
+                            </td>
+                        `;
+                        tabla.appendChild(tr);
+                    });
+
+                    // Actualizar contadores
+                    document.getElementById('stat-total').innerText = totalProductos;
+                    document.getElementById('stat-bajos').innerText = totalAlertas;
+
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                tabla.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error al conectar con la base de datos.</td></tr>';
+            }
+        }
+
+        // Eliminar Insumo
+        async function eliminarInsumo(id, nombre) {
+            if(!confirm(`¿Estás seguro de eliminar el producto "${nombre}" del inventario?`)) return;
+
+            try {
+                const response = await fetch(`/api/admin/inventario/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    cargarInventario();
+                } else {
+                    alert(result.mensaje || 'Error al eliminar');
+                }
+            } catch (error) {
+                alert('Ocurrió un error de conexión.');
+            }
+        }
+
+        // Lógica del Modal para Agregar
+        const modal = document.getElementById('modal-agregar');
+        
+        document.getElementById('btn-abrir-modal').addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        const cerrarModal = () => { 
+            modal.style.display = 'none'; 
+            document.getElementById('form-nuevo-insumo').reset();
+        };
+        
+        document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarModal);
+        document.getElementById('btn-cancelar').addEventListener('click', cerrarModal);
+
+        // Enviar formulario de nuevo insumo
+        document.getElementById('form-nuevo-insumo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nuevoInsumo = {
+                nombre_insumo: document.getElementById('add-nombre').value,
+                unidad_medida: document.getElementById('add-unidad').value,
+                stock_actual: document.getElementById('add-actual').value,
+                stock_minimo: document.getElementById('add-minimo').value
+            };
+
+            try {
+                const response = await fetch('/api/admin/inventario', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoInsumo)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    cerrarModal();
+                    cargarInventario(); // Recarga la tabla para ver el nuevo producto
+                } else {
+                    alert(result.mensaje);
+                }
+            } catch (error) {
+                alert('Error al intentar guardar el insumo.');
+            }
+        });
+    </script>
+</body>
+</html>

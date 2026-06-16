@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Ticket - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar hide-on-print">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html" class="active">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header hide-on-print">
+                <h1>Generación de Ticket Electrónico</h1>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="number" id="input-folio" placeholder="Ingresar Folio de Venta (Ej. 1)" class="search-input" style="width: 250px;">
+                    <button type="button" id="btn-buscar" class="btn-action btn-primary" style="margin: 0; padding: 8px 15px;">Buscar Ticket</button>
+                </div>
+            </div>
+
+            <div class="ticket-preview-area" id="area-ticket" style="display: none; flex-direction: column; align-items: center;">
+                
+                <div class="ticket-paper" id="ticket-imprimible" style="width: 350px; margin: 0 auto; background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    
+                    <div class="ticket-brand" style="text-align: center; border-bottom: 2px dashed #333; padding-bottom: 15px; margin-bottom: 15px;">
+                        <span style="font-size: 2.5rem; display: block; margin-bottom: 5px;">🌿</span>
+                        <h2 style="margin: 0; font-size: 1.5rem; letter-spacing: 2px;">LAVANDERÍA</h2>
+                        <p style="margin: 5px 0 0; font-size: 0.8rem; color: #555;">Sucursal Centro</p>
+                    </div>
+
+                    <div class="ticket-info" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">
+                        <p style="margin: 0;"><strong>Cliente:</strong> <span id="ticket-cliente">---</span></p>
+                        <p style="margin: 0;"><strong>Venta N°:</strong> <span id="ticket-folio">---</span></p>
+                        <p style="margin: 0;"><strong>Fecha:</strong> <span id="ticket-fecha">---</span></p>
+                    </div>
+
+                    <table class="ticket-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <th style="text-align: left; padding-bottom: 8px;">Servicio</th>
+                                <th style="text-align: right; padding-bottom: 8px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="ticket-desc" style="padding: 10px 0; color: #444; font-size: 0.85rem;">Servicio Estandar</td>
+                                <td id="ticket-monto" style="text-align: right; padding: 10px 0;">$0.00</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr style="border-top: 2px solid #333;">
+                                <td style="text-align: right; font-weight: bold; padding-top: 15px;">TOTAL</td>
+                                <td id="ticket-total" style="text-align: right; font-weight: bold; font-size: 1.2rem; padding-top: 15px;">$0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="ticket-qr-section" style="text-align: center; margin-top: 30px;">
+                        <img id="ticket-qr" src="" alt="Código QR" style="width: 120px; height: 120px; margin-bottom: 10px;">
+                        <p class="qr-help-text" style="font-size: 0.75rem; color: #777; margin: 0;">Escanee este código para consultar el estado de su pedido en línea.</p>
+                        <p style="font-size: 0.8rem; margin-top: 15px; font-weight: bold;">¡Gracias por su preferencia!</p>
+                    </div>
+                </div>
+
+                <div class="ticket-actions hide-on-print" style="margin-top: 25px; display: flex; gap: 15px;">
+                    <button type="button" id="btn-enviar" class="btn-action btn-success-large ticket-btn-primary">Generar y Enviar Ticket Electrónico</button>
+                    <button type="button" id="btn-imprimir" class="btn-action btn-secondary ticket-btn-secondary">Imprimir Copia Física</button>
+                </div>
+                
+                <div class="hide-on-print" style="margin-top: 15px;">
+                    <a href="/admin/admin-nuevo-pedido.html" style="color: #007bff; font-size: 0.95rem; text-decoration: none; font-weight: bold;">← Volver al registro de pedidos</a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <style>
+        /* Reglas estrictas para impresión del ticket */
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .hide-on-print { display: none !important; }
+            .admin-sidebar { display: none !important; }
+            .admin-main { margin: 0; padding: 0; width: 100%; display: flex; justify-content: center; align-items: flex-start; }
+            .ticket-preview-area { display: block !important; margin: 0; }
+            #ticket-imprimible { box-shadow: none !important; border: none !important; width: 300px !important; }
+        }
+    </style>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        let idVentaActual = null;
+
+        // Buscar el Ticket
+        document.getElementById('btn-buscar').addEventListener('click', async () => {
+            const idVenta = document.getElementById('input-folio').value;
+            if (!idVenta) return alert("Por favor, ingresa un Folio de Venta.");
+
+            try {
+                const response = await fetch(`/api/admin/ticket/${idVenta}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    idVentaActual = data.id_venta;
+
+                    // Formatear datos
+                    const fecha = new Date(data.fecha_venta).toLocaleString('es-MX', { 
+                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    });
+                    
+                    let nombre = "Público en General / Mostrador";
+                    if (data.nombre_cliente) nombre = `${data.nombre_cliente} ${data.apellidos_cliente || ''}`;
+
+                    let descripcion = "Servicios de Lavandería";
+                    if (data.notas_especiales) {
+                        // Limpiar un poco las notas si vienen del registro de mostrador
+                        descripcion = data.notas_especiales.split('|')[0] || data.notas_especiales;
+                    }
+
+                    // Inyectar en el HTML
+                    document.getElementById('ticket-folio').innerText = `V-${data.id_venta}`;
+                    document.getElementById('ticket-cliente').innerText = nombre;
+                    document.getElementById('ticket-fecha').innerText = fecha;
+                    document.getElementById('ticket-desc').innerText = descripcion;
+                    document.getElementById('ticket-monto').innerText = formatoMoneda.format(data.total_venta);
+                    document.getElementById('ticket-total').innerText = formatoMoneda.format(data.total_venta);
+
+                    // Generar código QR dinámico apuntando a una URL ficticia de seguimiento
+                    const urlSeguimiento = encodeURIComponent(`http://tu-lavanderia.com/rastreo?folio=${data.id_venta}`);
+                    document.getElementById('ticket-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${urlSeguimiento}`;
+
+                    // Mostrar el área del ticket
+                    document.getElementById('area-ticket').style.display = 'flex';
+                } else {
+                    alert(result.mensaje);
+                    document.getElementById('area-ticket').style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Error al buscar ticket:", error);
+                alert("Ocurrió un error al conectar con el servidor.");
+            }
+        });
+
+        // Imprimir Ticket
+        document.getElementById('btn-imprimir').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Simular Envío de Ticket Electrónico
+        document.getElementById('btn-enviar').addEventListener('click', async () => {
+            if (!idVentaActual) return;
+            
+            try {
+                const response = await fetch('/api/admin/ticket/enviar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_venta: idVentaActual })
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    alert(result.mensaje);
+                }
+            } catch (error) {
+                alert("Error al intentar enviar el ticket.");
+            }
+        });
+
+        // Opcional: Si el usuario presiona Enter en el input
+        document.getElementById('input-folio').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') document.getElementById('btn-buscar').click();
+        });
+    </script>
+</body>
+</html>

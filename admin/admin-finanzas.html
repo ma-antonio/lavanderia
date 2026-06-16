@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Financiero - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            
+            <div class="admin-header header-finance">
+                <div>
+                    <h1>Panel Financiero</h1>
+                    <p class="subtitle">Módulo: Ingresos Diarios</p>
+                </div>
+                <div class="header-time">
+                    <span class="date-display" id="fecha-actual">📅 Cargando...</span>
+                    <span class="time-display" id="hora-actual">🕘 Cargando...</span>
+                </div>
+            </div>
+
+            <div class="finance-kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Generado Hoy</span>
+                    <span class="kpi-value text-success" id="kpi-total">$0.00</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Pedidos Cobrados</span>
+                    <span class="kpi-value" id="kpi-pedidos">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Ticket Promedio</span>
+                    <span class="kpi-value" id="kpi-ticket">$0.00</span>
+                </div>
+            </div>
+
+            <div class="finance-content-grid">
+                
+                <div class="admin-panel finance-table-panel">
+                    <h3>Transacciones de Hoy</h3>
+                    <div class="dense-table-wrapper scrollable-finance">
+                        <table class="admin-dense-table finance-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Método</th>
+                                    <th>Fecha / Hora</th>
+                                    <th>Estado</th>
+                                    <th class="align-right">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-transacciones">
+                                <tr><td colspan="7" style="text-align: center;">Cargando transacciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="finance-sidebar-panel">
+                    
+                    <div class="admin-panel">
+                        <h3>Desglose por Método</h3>
+                        <ul class="method-list" id="lista-metodos">
+                            <li><span>Sin datos hoy</span><strong>$0.00</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="admin-panel system-status-panel">
+                        <h3>Estado del Sistema</h3>
+                        <ul class="status-list">
+                            <li><span class="status-dot dot-active"></span> Conexión de Base de Datos (Activo)</li>
+                            <li><span class="status-dot dot-active"></span> Facturación SAT (Simulada)</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="finance-actions">
+                <button type="button" id="btn-abrir-corte" class="btn-action btn-primary">Generar Corte de Caja</button>
+                <button type="button" class="btn-action btn-secondary" onclick="window.print();">Descargar Reporte PDF</button>
+            </div>
+
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modal-corte" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; padding: 25px; border-radius: 8px; width: 500px; max-width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.5rem;">Confirmar Corte de Caja</h2>
+                <button type="button" class="btn-close-modal" id="btn-cerrar-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p class="modal-warning" style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.9rem;">⚠️ Esta acción cerrará el turno actual. Asegúrate de verificar el efectivo.</p>
+                
+                <div class="summary-confirm-grid" style="margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                    <div class="summary-item" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Efectivo Físico Esperado:</span>
+                        <strong id="modal-efectivo">$0.00</strong>
+                    </div>
+                    <div class="summary-item" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Pagos Electrónicos (Tarjetas/Transferencias):</span>
+                        <strong id="modal-otros">$0.00</strong>
+                    </div>
+                    <hr>
+                    <div class="summary-item" style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 1.2rem;">
+                        <span>Total de Turno:</span>
+                        <strong class="total-highlight text-success" id="modal-total">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="cash-counted" style="display: block; margin-bottom: 5px; font-weight: bold;">Efectivo Físico Contado ($) *</label>
+                    <input type="number" id="cash-counted" placeholder="Ej. 1200" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="observations" style="display: block; margin-bottom: 5px; font-weight: bold;">Observaciones de Cierre</label>
+                    <textarea id="observations" rows="3" placeholder="Notas sobre diferencias..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-action btn-secondary" id="btn-cancelar-corte" style="padding: 10px 20px;">Cancelar</button>
+                <button type="button" class="btn-action btn-success-large" id="btn-finalizar-corte" style="margin:0; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Finalizar y Cerrar Caja</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @media print {
+            .admin-sidebar, .finance-actions, .modal-overlay { display: none !important; }
+            .admin-main { margin: 0; width: 100%; }
+        }
+    </style>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        
+        // Variables globales para el modal
+        let totalEfectivoHoy = 0;
+        let totalOtrosMetodos = 0;
+        let granTotalHoy = 0;
+
+        // Configurar reloj
+        setInterval(() => {
+            const ahora = new Date();
+            document.getElementById('fecha-actual').innerText = `📅 ${ahora.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+            document.getElementById('hora-actual').innerText = `🕘 ${ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
+        }, 1000);
+
+        document.addEventListener('DOMContentLoaded', cargarDatosHoy);
+
+        async function cargarDatosHoy() {
+            try {
+                const response = await fetch('/api/admin/finanzas/hoy');
+                const result = await response.json();
+
+                if (result.success) {
+                    const { kpis, metodos, transacciones } = result.data;
+
+                    // 1. KPIs
+                    granTotalHoy = parseFloat(kpis.total_generado);
+                    document.getElementById('kpi-total').innerText = formatoMoneda.format(kpis.total_generado);
+                    document.getElementById('kpi-pedidos').innerText = kpis.pedidos_cobrados;
+                    document.getElementById('kpi-ticket').innerText = formatoMoneda.format(kpis.ticket_promedio);
+
+                    // 2. Desglose por Método
+                    const listaMetodos = document.getElementById('lista-metodos');
+                    listaMetodos.innerHTML = '';
+                    totalEfectivoHoy = 0;
+                    totalOtrosMetodos = 0;
+
+                    if (metodos.length === 0) {
+                        listaMetodos.innerHTML = '<li><span>Sin transacciones hoy</span><strong>$0.00</strong></li>';
+                    } else {
+                        const iconos = { 'Efectivo': '💵', 'Tarjeta': '💳', 'Monedero': '🪙', 'Transferencia': '📱' };
+                        metodos.forEach(m => {
+                            const monto = parseFloat(m.total);
+                            if(m.metodo_pago === 'Efectivo') totalEfectivoHoy += monto;
+                            else totalOtrosMetodos += monto;
+
+                            listaMetodos.innerHTML += `
+                                <li>
+                                    <span>${iconos[m.metodo_pago] || '💰'} ${m.metodo_pago}</span>
+                                    <strong>${formatoMoneda.format(monto)}</strong>
+                                </li>
+                            `;
+                        });
+                    }
+
+                    // 3. Tabla de Transacciones
+                    const tabla = document.getElementById('tabla-transacciones');
+                    tabla.innerHTML = '';
+
+                    if (transacciones.length === 0) {
+                        tabla.innerHTML = '<tr><td colspan="7" style="text-align: center;">No hay ingresos registrados el día de hoy.</td></tr>';
+                    } else {
+                        transacciones.forEach(t => {
+                            const cliente = t.nombre_cliente ? `${t.nombre_cliente} ${t.apellidos_cliente || ''}` : 'Público en General';
+                            const fecha = new Date(t.fecha_venta).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                            
+                            tabla.innerHTML += `
+                                <tr>
+                                    <td><strong>V-${t.id_venta}</strong></td>
+                                    <td>${cliente}</td>
+                                    <td>Servicios Lavandería</td>
+                                    <td>${t.metodo_pago}</td>
+                                    <td>Hoy, ${fecha}</td>
+                                    <td><span class="badge-finance badge-paid" style="background:#d4edda; color:#155724; padding:3px 8px; border-radius:10px; font-size:0.8rem;">Pagado</span></td>
+                                    <td class="align-right"><strong>${formatoMoneda.format(t.total_venta)}</strong></td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                }
+            } catch (error) {
+                console.error("Error al cargar finanzas:", error);
+            }
+        }
+
+        // Lógica del Modal
+        const modal = document.getElementById('modal-corte');
+        
+        document.getElementById('btn-abrir-corte').addEventListener('click', () => {
+            document.getElementById('modal-efectivo').innerText = formatoMoneda.format(totalEfectivoHoy);
+            document.getElementById('modal-otros').innerText = formatoMoneda.format(totalOtrosMetodos);
+            document.getElementById('modal-total').innerText = formatoMoneda.format(granTotalHoy);
+            modal.style.display = 'flex';
+        });
+
+        const cerrarModal = () => { modal.style.display = 'none'; };
+        document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarModal);
+        document.getElementById('btn-cancelar-corte').addEventListener('click', cerrarModal);
+
+        // Finalizar Cierre
+        document.getElementById('btn-finalizar-corte').addEventListener('click', async () => {
+            const efectivoContado = document.getElementById('cash-counted').value;
+            
+            if(!efectivoContado) return alert("Debes ingresar la cantidad de efectivo físico contado.");
+
+            try {
+                const response = await fetch('/api/admin/finanzas/corte', { method: 'POST' });
+                const result = await response.json();
+                
+                if(result.success) {
+                    alert(result.mensaje);
+                    cerrarModal();
+                    document.getElementById('cash-counted').value = '';
+                    document.getElementById('observations').value = '';
+                }
+            } catch (error) {
+                alert("Ocurrió un error al intentar cerrar la caja.");
+            }
+        });
+    </script>
+</body>
+</html>

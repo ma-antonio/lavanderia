@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header hide-on-print">
+                <h1>Generación de Reportes</h1>
+                <p class="subtitle">Filtra y exporta la información operativa y financiera.</p>
+            </div>
+
+            <div class="admin-panel report-params-panel hide-on-print">
+                <h3>Parámetros del Informe</h3>
+                
+                <form id="form-reporte" class="report-form">
+                    <div class="report-filter-grid">
+                        
+                        <div class="form-group">
+                            <label for="fecha-desde">Desde:</label>
+                            <input type="date" id="fecha-desde" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha-hasta">Hasta:</label>
+                            <input type="date" id="fecha-hasta" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filtro-sucursal">Sucursal:</label>
+                            <select id="filtro-sucursal">
+                                <option value="todas">Todas las Sucursales</option>
+                                <option value="1">Roma</option>
+                                <option value="2">Coyoacán</option>
+                                <option value="3">Polanco</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filtro-servicio">Palabra Clave (Servicio):</label>
+                            <select id="filtro-servicio">
+                                <option value="todos">Todos los Servicios</option>
+                                <option value="Lavado">Lavado</option>
+                                <option value="Tintorería">Tintorería</option>
+                                <option value="Planchado">Planchado</option>
+                                <option value="Express">Solo Express</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filtro-estado">Estado de Pago:</label>
+                            <select id="filtro-estado">
+                                <option value="todos">Cualquiera</option>
+                                <option value="pagado">Pagado (Completado)</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+
+                    <div class="report-actions">
+                        <button type="submit" class="btn-action btn-primary">Mostrar Informe en Pantalla</button>
+                        <button type="button" id="btn-csv" class="btn-action btn-secondary" disabled>Exportar a Excel (.csv)</button>
+                        <button type="button" id="btn-pdf" class="btn-action btn-secondary">Exportar a PDF</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-panel report-results-panel">
+                <div class="panel-header-flex">
+                    <h3>Vista Previa de Resultados</h3>
+                    <span class="table-summary">Mostrando registros del periodo seleccionado</span>
+                </div>
+                
+                <div class="dense-table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                    <table class="admin-dense-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Folio Venta</th>
+                                <th>Sucursal</th>
+                                <th>Servicio Registrado</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                                <th class="align-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reporte">
+                            <tr><td colspan="7" style="text-align: center;">Seleccione sus filtros y presione "Mostrar Informe".</td></tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="6" class="align-right">Total del Periodo:</th>
+                                <th class="align-right" id="total-periodo">$0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <style>
+        @media print {
+            .hide-on-print { display: none !important; }
+            .admin-main { margin: 0; padding: 0; width: 100%; }
+            body { background: white; }
+            .admin-panel { box-shadow: none; border: none; padding: 0; }
+        }
+    </style>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        let datosReporteActual = []; // Para guardarlos y exportarlos a CSV
+
+        document.getElementById('form-reporte').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const params = new URLSearchParams({
+                desde: document.getElementById('fecha-desde').value,
+                hasta: document.getElementById('fecha-hasta').value,
+                sucursal: document.getElementById('filtro-sucursal').value,
+                servicio: document.getElementById('filtro-servicio').value,
+                estado: document.getElementById('filtro-estado').value
+            });
+
+            const tabla = document.getElementById('tabla-reporte');
+            const totalObj = document.getElementById('total-periodo');
+            
+            tabla.innerHTML = '<tr><td colspan="7" style="text-align:center;">Generando reporte...</td></tr>';
+            document.getElementById('btn-csv').disabled = true;
+
+            try {
+                const response = await fetch(`/api/admin/reportes?${params.toString()}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    tabla.innerHTML = '';
+                    datosReporteActual = result.data;
+                    let sumatoriaTotal = 0;
+
+                    if (datosReporteActual.length === 0) {
+                        tabla.innerHTML = '<tr><td colspan="7" style="text-align:center;">No se encontraron registros para estos filtros.</td></tr>';
+                        totalObj.innerText = '$0.00';
+                        return;
+                    }
+
+                    datosReporteActual.forEach(fila => {
+                        sumatoriaTotal += parseFloat(fila.total_venta);
+
+                        const fechaTxt = new Date(fila.fecha_venta).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const clienteNombre = fila.nombre_cliente ? `${fila.nombre_cliente} ${fila.apellidos_cliente || ''}` : 'Público General';
+                        const servicio = fila.notas_especiales ? fila.notas_especiales.substring(0, 50) + '...' : 'Servicio Estandar';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${fechaTxt}</td>
+                            <td><strong>V-${fila.id_venta}</strong></td>
+                            <td>${fila.nombre_sucursal}</td>
+                            <td title="${fila.notas_especiales}">${servicio}</td>
+                            <td>${clienteNombre}</td>
+                            <td><span class="badge-finance badge-paid" style="background:#d4edda; color:#155724; padding:3px 8px; border-radius:10px; font-size:0.8rem;">Pagado</span></td>
+                            <td class="align-right"><strong>${formatoMoneda.format(fila.total_venta)}</strong></td>
+                        `;
+                        tabla.appendChild(tr);
+                    });
+
+                    totalObj.innerText = formatoMoneda.format(sumatoriaTotal);
+                    document.getElementById('btn-csv').disabled = false; // Habilitar botón de Excel
+
+                } else {
+                    alert(result.mensaje || 'Error al generar el reporte.');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                tabla.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Error de conexión con el servidor.</td></tr>';
+            }
+        });
+
+        // Imprimir / Exportar a PDF
+        document.getElementById('btn-pdf').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Generar CSV para Excel
+        document.getElementById('btn-csv').addEventListener('click', () => {
+            if (datosReporteActual.length === 0) return;
+
+            let csvContent = "data:text/csv;charset=utf-8,Fecha,Folio Venta,Sucursal,Servicio,Cliente,Estado,Total\n";
+
+            datosReporteActual.forEach(row => {
+                const fechaTxt = new Date(row.fecha_venta).toLocaleDateString('es-MX');
+                const clienteNombre = row.nombre_cliente ? `${row.nombre_cliente} ${row.apellidos_cliente || ''}` : 'Público General';
+                const servicio = row.notas_especiales ? row.notas_especiales.replace(/"/g, '""').replace(/\n/g, ' ') : 'Servicio Estandar';
+
+                // Se ponen comillas en campos de texto para evitar que las comas rompan las columnas en Excel
+                let rowData = [
+                    fechaTxt,
+                    `V-${row.id_venta}`,
+                    `"${row.nombre_sucursal}"`,
+                    `"${servicio}"`,
+                    `"${clienteNombre}"`,
+                    'Pagado',
+                    row.total_venta
+                ].join(',');
+
+                csvContent += rowData + "\r\n";
+            });
+
+            // Forzar descarga del archivo
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "reporte_lavanderia.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>

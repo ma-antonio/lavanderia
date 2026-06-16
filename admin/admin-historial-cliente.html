@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Clientes - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Búsqueda de Historial de Cliente</h1>
+                <p class="subtitle">Consulta los servicios previos y el estado de cuenta de un cliente específico.</p>
+            </div>
+
+            <div class="admin-panel">
+                <h3>Criterios de Búsqueda</h3>
+                <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">Ingrese al menos un dato para localizar al cliente.</p>
+                
+                <form id="form-busqueda" class="search-inline-form">
+                    <div class="form-group">
+                        <label for="search-nombre">Nombre del Cliente</label>
+                        <input type="text" id="search-nombre" placeholder="Ej. Juan García">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search-correo">Correo Electrónico</label>
+                        <input type="email" id="search-correo" placeholder="correo@ejemplo.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search-tel">Teléfono</label>
+                        <input type="tel" id="search-tel" placeholder="10 dígitos">
+                    </div>
+
+                    <div class="form-group btn-align">
+                        <button type="submit" class="btn-action btn-primary" style="width: 100%;">Buscar Cliente</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-panel mt-20" id="panel-resultados" style="display: none;">
+                <div class="panel-header-flex">
+                    <h3>Resultados del Historial</h3>
+                    <span class="customer-found-label" id="label-cliente">Mostrando resultados para: <strong>---</strong></span>
+                </div>
+                
+                <div class="dense-table-wrapper">
+                    <table class="admin-dense-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">ID Pedido</th>
+                                <th>Fecha Pedido</th>
+                                <th>Estado</th>
+                                <th>Servicio / Notas</th>
+                                <th class="align-right" style="width: 150px;">Total Cobrado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-historial">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+        document.getElementById('form-busqueda').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('search-nombre').value.trim();
+            const correo = document.getElementById('search-correo').value.trim();
+            const tel = document.getElementById('search-tel').value.trim();
+
+            if (!nombre && !correo && !tel) {
+                return alert("Por favor, ingresa al menos un dato para buscar.");
+            }
+
+            const panelResultados = document.getElementById('panel-resultados');
+            const tabla = document.getElementById('tabla-historial');
+            const labelCliente = document.getElementById('label-cliente');
+            
+            // Mostrar estado de carga
+            panelResultados.style.display = 'block';
+            labelCliente.innerHTML = 'Buscando...';
+            tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Consultando base de datos...</td></tr>';
+
+            const params = new URLSearchParams({ nombre, correo, tel });
+
+            try {
+                const response = await fetch(`/api/admin/historial-cliente?${params.toString()}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const cliente = result.data;
+                    labelCliente.innerHTML = `Mostrando resultados para: <strong>${cliente.nombre_completo} (${cliente.telefono})</strong>`;
+                    
+                    tabla.innerHTML = ''; // Limpiar tabla
+
+                    if (cliente.pedidos.length === 0) {
+                        tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Este cliente no tiene pedidos registrados.</td></tr>';
+                        return;
+                    }
+
+                    cliente.pedidos.forEach(pedido => {
+                        // Formato de fecha
+                        const d = new Date(pedido.fecha_recepcion);
+                        const fechaTxt = d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+                        
+                        // Formato de color para estado
+                        let colorEstado = '#6c757d'; // gris por defecto (Pendiente)
+                        if (pedido.estado_lavado === 'Entregado') colorEstado = '#28a745'; // verde
+                        if (pedido.estado_lavado === 'Proceso') colorEstado = '#007bff'; // azul
+                        if (pedido.estado_lavado === 'Listo') colorEstado = '#ffc107'; // amarillo
+                        
+                        // Servicio o Notas
+                        const servicioTexto = pedido.notas_especiales ? pedido.notas_especiales : 'Servicio de Lavandería';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>P-${pedido.id_pedido.toString().padStart(3, '0')}</strong></td>
+                            <td>${fechaTxt}</td>
+                            <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">${pedido.estado_lavado}</span></td>
+                            <td>${servicioTexto}</td>
+                            <td class="align-right"><strong>${formatoMoneda.format(pedido.total_venta)}</strong></td>
+                        `;
+                        tabla.appendChild(tr);
+                    });
+
+                } else {
+                    labelCliente.innerHTML = 'Búsqueda finalizada';
+                    tabla.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">${result.mensaje || 'No se encontraron resultados.'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Error en la consulta:", error);
+                labelCliente.innerHTML = 'Error';
+                tabla.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error de conexión con el servidor.</td></tr>';
+            }
+        });
+    </script>
+</body>
+</html>
