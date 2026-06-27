@@ -16,20 +16,28 @@ app.use(express.urlencoded({ extended: true }));
 //app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'user')));
 
-// Conexión a la Base de Datos
-const db = mysql.createConnection({
+// Reemplaza mysql.createConnection por mysql.createPool
+const db = mysql.createPool({
     host: 'localhost',
     user: 'admin_lavanderia',
-    password: 'Password123!', // Contraseña
-    database: 'erp_lavanderia'
+    password: 'Password123!',
+    database: 'erp_lavanderia',
+    waitForConnections: true,
+    connectionLimit: 10,       // Límite de conexiones simultáneas
+    queueLimit: 0,
+    enableKeepAlive: true,     // Mantiene el pulso con la BD para evitar desconexiones
+    keepAliveInitialDelay: 0
 });
 
-db.connect((err) => {
+// Prueba la conexión inicial para asegurar que el pool funciona
+db.getConnection((err, connection) => {
     if (err) {
-        console.error('Error conectando a MySQL:', err);
-        return;
+        console.error('Error al conectar al Pool de MySQL:', err.code);
     }
-    console.log('Conectado exitosamente a la base de datos: erp_lavanderia');
+    if (connection) {
+        console.log('¡Conexión estable y optimizada a MySQL establecida!');
+        connection.release(); 
+    }
 });
 
 // Redirección inicial al índice de usuario
