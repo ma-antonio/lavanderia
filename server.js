@@ -237,6 +237,32 @@ app.get('/api/historial/:id', (req, res) => {
         res.status(200).json(results);
     });
 });
+// Endpoint para cancelar (eliminar permanentemente) un pedido del historial
+app.delete('/api/historial/:id_pedido', (req, res) => {
+    const { id_pedido } = req.params;
+
+    // 1. Primero eliminamos la referencia en 'detalles_ventas' para evitar errores de llave foránea
+    const queryDetalles = 'DELETE FROM detalles_ventas WHERE id_pedido = ?';
+    
+    db.query(queryDetalles, [id_pedido], (err) => {
+        if (err) {
+            console.error("Error SQL al eliminar detalles de venta:", err);
+            return res.status(500).json({ success: false, mensaje: "Error interno al procesar la cancelación." });
+        }
+
+        // 2. Una vez liberado, eliminamos el pedido principal de 'pedidos_servicio'
+        const queryPedido = 'DELETE FROM pedidos_servicio WHERE id_pedido = ?';
+        
+        db.query(queryPedido, [id_pedido], (err, result) => {
+            if (err) {
+                console.error("Error SQL al eliminar pedido:", err);
+                return res.status(500).json({ success: false, mensaje: "Error al eliminar el pedido de la base de datos." });
+            }
+            
+            res.json({ success: true, mensaje: "El pedido ha sido cancelado y eliminado exitosamente." });
+        });
+    });
+});
 
 // Archivo: server.js (Reemplaza el endpoint existente)
 
@@ -1081,6 +1107,37 @@ app.get('/api/admin/historial-cliente', (req, res) => {
 });
 
 // =======================================================
+// AGREGAR EN LA SECCIÓN DE HISTORIAL DE CLIENTES (server.js)
+// =======================================================
+
+// Endpoint para obtener el Top de Clientes Frecuentes
+app.get('/api/admin/clientes-frecuentes', (req, res) => {
+    // Cuenta la cantidad de pedidos por cliente usando las tablas existentes
+    const query = `
+        SELECT 
+            c.id_cliente,
+            c.nombre_cliente,
+            c.apellidos_cliente,
+            c.telefono_contacto,
+            COUNT(p.id_pedido) AS total_pedidos
+        FROM clientes c
+        JOIN pedidos_servicio p ON c.id_cliente = p.id_cliente
+        GROUP BY c.id_cliente
+        HAVING total_pedidos >= 2
+        ORDER BY total_pedidos DESC
+        LIMIT 10
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error("Error al buscar clientes frecuentes:", err);
+            return res.status(500).json({ success: false, error: "Error de base de datos" });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+// =======================================================
 // RUTAS DE ADMINISTRADOR: INVENTARIO DE INSUMOS
 // =======================================================
 
@@ -1402,6 +1459,111 @@ app.get('/api/admin/notificaciones', (req, res) => {
                 res.json({ success: true, data: alertas });
             });
         });
+    });
+});
+
+// =======================================================
+// RUTAS DE ADMINISTRADOR: REGISTRO DE CLIENTES
+// =======================================================
+
+
+// Servir la vista HTML
+app.get('/admin/admin-registro.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'admin-registro.html'));
+});
+
+// Endpoint para guardar al nuevo cliente
+app.post('/api/admin/registro-cliente', async (req, res) => {
+    const { nombre, apellidos, correo, telefono, password } = req.body;
+
+    // 1. Verificar si el correo ya existe para evitar errores SQL (UNIQUE CONSTRAINT)
+    const queryCheck = 'SELECT id_cliente FROM clientes WHERE correo_electronico = ?';
+    
+    db.query(queryCheck, [correo], async (err, results) => {
+        if (err) {
+            console.error("Error al comprobar correo:", err);
+            return res.status(500).json({ success: false, mensaje: "Error de base de datos" });
+        }
+        
+        if (results.length > 0) {
+            return res.json({ success: false, mensaje: "El correo electrónico ya está registrado en el sistema." });
+        }
+
+        try {
+            // 2. Encriptar la contraseña (Salt de 10 rondas, el estándar seguro)
+            const hash = await bcrypt.hash(password, 10);
+
+            // 3. Insertar el cliente en la tabla
+            const queryInsert = `
+                INSERT INTO clientes (nombre_cliente, apellidos_cliente, correo_electronico, telefono_contacto, contrasena_hash) 
+                VALUES (?, ?, ?, ?, ?)
+            `;
+
+            db.query(queryInsert, [nombre, apellidos, correo, telefono, hash], (err, result) => {
+                if (err) {
+                    console.error("Error al insertar cliente:", err);
+                    return res.status(500).json({ success: false, mensaje: "Error al registrar cliente." });
+                }
+                
+                res.json({ success: true, mensaje: "Registro exitoso." });
+            });
+
+        } catch (error) {
+            console.error("Error al encriptar:", error);
+            res.status(500).json({ success: false, mensaje: "Error interno de seguridad." });
+        }
+    });
+});
+
+
+// =======================================================
+// RUTAS DE ADMINISTRADOR: COMENTARIOS Y CONTACTO
+// =======================================================
+
+// Servir la vista HTML
+app.get('/admin/admin-comentarios.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'admin-comentarios.html'));
+});
+
+// Endpoint para obtener los comentarios con filtros básicos
+app.get('/api/admin/comentarios', (req, res) => {
+    const { buscar, estado } = req.query;
+    
+    let query = `SELECT * FROM comentarios_clientes WHERE 1=1`;
+    let params = [];
+
+    if (buscar) {
+        query += ` AND (nombre_completo LIKE ? OR mensaje LIKE ?)`;
+        params.push(`%${buscar}%`, `%${buscar}%`);
+    }
+
+    if (estado && estado !== 'todos') {
+        query += ` AND estado_queja = ?`;
+        params.push(estado);
+    }
+
+    // Ordenar los más recientes primero
+    query += ` ORDER BY id_comentario DESC`;
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error("Error al buscar comentarios:", err);
+            return res.status(500).json({ success: false, error: "Error de base de datos" });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+// Endpoint para marcar un comentario como Resuelto
+app.put('/api/admin/comentarios/:id/estado', (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+    
+    const query = `UPDATE comentarios_clientes SET estado_queja = ? WHERE id_comentario = ?`;
+    
+    db.query(query, [estado, id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, mensaje: "Error al actualizar estado." });
+        res.json({ success: true, mensaje: "Estado actualizado correctamente." });
     });
 });
 

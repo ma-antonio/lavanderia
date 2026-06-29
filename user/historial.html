@@ -46,6 +46,7 @@
                         <th>Sucursal</th>
                         <th>Estado</th>
                         <th>Fecha</th>
+                        <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="historial-tabla">
@@ -54,36 +55,33 @@
             </table>
         </div>
     </main>
+
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Verificación de seguridad: Redirigir al login si no hay sesión activa
+// Función global para cargar el historial
+async function cargarHistorial() {
     const idCliente = localStorage.getItem('id_cliente');
     if (!idCliente) {
         window.location.href = 'login.html';
         return;
     }
 
-    // 2. Obtener los datos del historial completo
     try {
         const respuesta = await fetch(`/api/historial/${idCliente}`);
         const historial = await respuesta.json();
 
         if (respuesta.ok) {
             const tabla = document.getElementById('historial-tabla');
-            tabla.innerHTML = ''; // Limpiamos cualquier rastro previo
+            tabla.innerHTML = ''; 
 
             if (historial.length === 0) {
-                tabla.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aún no tienes pedidos en tu historial.</td></tr>`;
+                tabla.innerHTML = `<tr><td colspan="6" style="text-align: center;">Aún no tienes pedidos en tu historial.</td></tr>`;
             } else {
                 historial.forEach(pedido => {
-                    // Formatear la fecha para que se vea legible (DD/MM/AAAA)
                     const fecha = new Date(pedido.fecha_recepcion).toLocaleDateString('es-MX');
                     
-                    // Ajustar color del badge según el estado (Opcional, mejora visual)
                     let badgeClass = 'status-badge';
-                    if(pedido.estado_lavado === 'Entregado') badgeClass += ' badge-active'; // Puedes cambiar la clase CSS según el estado
+                    if(pedido.estado_lavado === 'Entregado') badgeClass += ' badge-active'; 
                     
-                    // Construir la fila dinámica
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
                         <td><strong>P-${pedido.id_pedido.toString().padStart(3, '0')}</strong></td>
@@ -91,6 +89,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <td>${pedido.nombre_sucursal}</td>
                         <td><span class="${badgeClass}">${pedido.estado_lavado}</span></td>
                         <td>${fecha}</td>
+                        <td style="text-align: center;">
+                            <button onclick="cancelarPedido(${pedido.id_pedido})" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s;">
+                                Cancelar
+                            </button>
+                        </td>
                     `;
                     tabla.appendChild(fila);
                 });
@@ -101,7 +104,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error("Problema de conexión con el servidor:", error);
     }
-});
+}
+
+// Cargar al iniciar la página
+document.addEventListener('DOMContentLoaded', cargarHistorial);
+
+// Función para eliminar el pedido permanentemente
+async function cancelarPedido(idPedido) {
+    if (!confirm(`¿Estás seguro de que deseas cancelar y eliminar permanentemente el pedido P-${idPedido.toString().padStart(3, '0')}? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/historial/${idPedido}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            alert(result.mensaje);
+            cargarHistorial(); // Refresca la tabla automáticamente
+        } else {
+            alert(`Error: ${result.mensaje || 'No se pudo cancelar el pedido.'}`);
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error al intentar conectar con el servidor.");
+    }
+}
 </script>
 </body>
 </html>

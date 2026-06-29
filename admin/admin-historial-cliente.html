@@ -21,11 +21,11 @@
                     <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
                     <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
                     <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
-                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html" class="active">📋 Historial de Pedidos</a></li>
                     <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
                     <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
                     <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
-                    <li><a href="/admin/admin-notificaciones.html" class="active">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                    <li><a href="/admin/admin-notificaciones.html">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
                 </ul>
             </nav>
         </aside>
@@ -33,12 +33,12 @@
         <main class="admin-main">
             <div class="admin-header">
                 <h1>Búsqueda de Historial de Cliente</h1>
-                <p class="subtitle">Consulta los servicios previos y el estado de cuenta de un cliente específico.</p>
+                <p class="subtitle">Consulta los servicios previos y destaca a los clientes más leales.</p>
             </div>
 
             <div class="admin-panel">
                 <h3>Criterios de Búsqueda</h3>
-                <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">Ingrese al menos un dato para localizar al cliente.</p>
+                <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">Ingrese al menos un dato para localizar al cliente o consulte el ranking general.</p>
                 
                 <form id="form-busqueda" class="search-inline-form">
                     <div class="form-group">
@@ -56,29 +56,23 @@
                         <input type="tel" id="search-tel" placeholder="10 dígitos">
                     </div>
 
-                    <div class="form-group btn-align">
-                        <button type="submit" class="btn-action btn-primary" style="width: 100%;">Buscar Cliente</button>
+                    <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+                        <button type="submit" class="btn-action btn-primary" style="flex: 1; margin: 0;">Buscar</button>
+                        <button type="button" id="btn-frecuentes" class="btn-action" style="flex: 1; margin: 0; background-color: #ffc107; color: #000; border: none; font-weight: bold;">⭐ Clientes Frecuentes</button>
                     </div>
                 </form>
             </div>
 
             <div class="admin-panel mt-20" id="panel-resultados" style="display: none;">
                 <div class="panel-header-flex">
-                    <h3>Resultados del Historial</h3>
+                    <h3 id="titulo-resultados">Resultados del Historial</h3>
                     <span class="customer-found-label" id="label-cliente">Mostrando resultados para: <strong>---</strong></span>
                 </div>
                 
                 <div class="dense-table-wrapper">
                     <table class="admin-dense-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 120px;">ID Pedido</th>
-                                <th>Fecha Pedido</th>
-                                <th>Estado</th>
-                                <th>Servicio / Notas</th>
-                                <th class="align-right" style="width: 150px;">Total Cobrado</th>
-                            </tr>
-                        </thead>
+                        <thead id="tabla-cabecera">
+                            </thead>
                         <tbody id="tabla-historial">
                             </tbody>
                     </table>
@@ -90,7 +84,13 @@
 
     <script>
         const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+        const panelResultados = document.getElementById('panel-resultados');
+        const tabla = document.getElementById('tabla-historial');
+        const thead = document.getElementById('tabla-cabecera');
+        const labelCliente = document.getElementById('label-cliente');
+        const tituloResultados = document.getElementById('titulo-resultados');
 
+        // 1. Función para buscar un cliente específico
         document.getElementById('form-busqueda').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -102,11 +102,18 @@
                 return alert("Por favor, ingresa al menos un dato para buscar.");
             }
 
-            const panelResultados = document.getElementById('panel-resultados');
-            const tabla = document.getElementById('tabla-historial');
-            const labelCliente = document.getElementById('label-cliente');
+            // Restaurar diseño de tabla para historial individual
+            tituloResultados.innerText = "Resultados del Historial";
+            thead.innerHTML = `
+                <tr>
+                    <th style="width: 120px;">ID Pedido</th>
+                    <th>Fecha Pedido</th>
+                    <th>Estado</th>
+                    <th>Servicio / Notas</th>
+                    <th class="align-right" style="width: 150px;">Total Cobrado</th>
+                </tr>
+            `;
             
-            // Mostrar estado de carga
             panelResultados.style.display = 'block';
             labelCliente.innerHTML = 'Buscando...';
             tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Consultando base de datos...</td></tr>';
@@ -119,9 +126,14 @@
 
                 if (result.success && result.data) {
                     const cliente = result.data;
-                    labelCliente.innerHTML = `Mostrando resultados para: <strong>${cliente.nombre_completo} (${cliente.telefono})</strong>`;
                     
-                    tabla.innerHTML = ''; // Limpiar tabla
+                    // Lógica para destacar si es cliente frecuente (3 o más pedidos)
+                    const esFrecuente = cliente.pedidos.length >= 3;
+                    const badgeInsignia = esFrecuente ? '<span style="background-color: #ffc107; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; font-weight: bold;">⭐ Frecuente</span>' : '';
+                    
+                    labelCliente.innerHTML = `Mostrando a: <strong>${cliente.nombre_completo} (${cliente.telefono})</strong> ${badgeInsignia}`;
+                    
+                    tabla.innerHTML = ''; 
 
                     if (cliente.pedidos.length === 0) {
                         tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Este cliente no tiene pedidos registrados.</td></tr>';
@@ -129,17 +141,14 @@
                     }
 
                     cliente.pedidos.forEach(pedido => {
-                        // Formato de fecha
                         const d = new Date(pedido.fecha_recepcion);
                         const fechaTxt = d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
                         
-                        // Formato de color para estado
-                        let colorEstado = '#6c757d'; // gris por defecto (Pendiente)
-                        if (pedido.estado_lavado === 'Entregado') colorEstado = '#28a745'; // verde
-                        if (pedido.estado_lavado === 'Proceso') colorEstado = '#007bff'; // azul
-                        if (pedido.estado_lavado === 'Listo') colorEstado = '#ffc107'; // amarillo
+                        let colorEstado = '#6c757d'; 
+                        if (pedido.estado_lavado === 'Entregado') colorEstado = '#28a745'; 
+                        if (pedido.estado_lavado === 'Proceso') colorEstado = '#007bff'; 
+                        if (pedido.estado_lavado === 'Listo') colorEstado = '#ffc107'; 
                         
-                        // Servicio o Notas
                         const servicioTexto = pedido.notas_especiales ? pedido.notas_especiales : 'Servicio de Lavandería';
 
                         const tr = document.createElement('tr');
@@ -160,6 +169,68 @@
             } catch (error) {
                 console.error("Error en la consulta:", error);
                 labelCliente.innerHTML = 'Error';
+                tabla.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error de conexión con el servidor.</td></tr>';
+            }
+        });
+
+        // 2. Función para listar a los clientes más frecuentes
+        document.getElementById('btn-frecuentes').addEventListener('click', async () => {
+            
+            tituloResultados.innerHTML = "⭐ Ranking de Clientes Frecuentes";
+            labelCliente.innerHTML = 'Mostrando: <strong>Top Clientes</strong>';
+            
+            // Cambiar diseño de tabla para el ranking
+            thead.innerHTML = `
+                <tr>
+                    <th style="width: 100px;">ID Cliente</th>
+                    <th>Nombre Completo</th>
+                    <th>Teléfono</th>
+                    <th class="align-right">Total Pedidos</th>
+                    <th style="text-align: center;">Nivel de Lealtad</th>
+                </tr>
+            `;
+
+            panelResultados.style.display = 'block';
+            tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Generando ranking...</td></tr>';
+
+            try {
+                const response = await fetch('/api/admin/clientes-frecuentes');
+                const result = await response.json();
+
+                if (result.success) {
+                    tabla.innerHTML = '';
+                    
+                    if (result.data.length === 0) {
+                        tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay suficientes datos para generar el ranking.</td></tr>';
+                        return;
+                    }
+
+                    result.data.forEach(cliente => {
+                        const nombreCompleto = `${cliente.nombre_cliente} ${cliente.apellidos_cliente || ''}`.trim();
+                        
+                        // Determinar el distintivo visual
+                        const esVIP = cliente.total_pedidos >= 5;
+                        const textoInsignia = esVIP ? '🏆 VIP' : '⭐ Frecuente';
+                        const colorInsignia = esVIP ? '#28a745' : '#ffc107';
+                        const colorTexto = esVIP ? 'white' : 'black';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>C-${cliente.id_cliente.toString().padStart(3, '0')}</strong></td>
+                            <td>${nombreCompleto}</td>
+                            <td>${cliente.telefono_contacto || 'Sin registro'}</td>
+                            <td class="align-right"><strong>${cliente.total_pedidos}</strong></td>
+                            <td style="text-align: center;">
+                                <span style="background-color: ${colorInsignia}; color: ${colorTexto}; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
+                                    ${textoInsignia}
+                                </span>
+                            </td>
+                        `;
+                        tabla.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error("Error al cargar frecuentes:", error);
                 tabla.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error de conexión con el servidor.</td></tr>';
             }
         });

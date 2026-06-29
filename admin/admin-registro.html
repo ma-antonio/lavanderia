@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Clientes - ERP Lavandería</title>
+    <link rel="stylesheet" href="/admin/admin-style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>ERP OPERATIVO</h2>
+                <p>Sucursal: Centro</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/admin/admin.html">🏠 Panel Principal</a></li>
+                    <li><a href="/admin/admin-registro.html" class="active">👤 Registrar Nuevo Cliente</a></li>
+                    <li><a href="/admin/admin-nuevo-pedido.html">📝 Registrar Pedido</a></li>
+                    <li><a href="/admin/admin-control-pedidos.html">⏱️ Control en Tiempo Real</a></li>
+                    <li><a href="/admin/admin-finanzas.html">💰 Finanzas y Caja</a></li>
+                    <li><a href="/admin/admin-historial-cliente.html">📋 Historial de Pedidos</a></li>
+                    <li><a href="/admin/admin-inventario.html">📦 Inventario de Insumos</a></li>
+                    <li><a href="/admin/admin-facturacion.html">🧾 Facturación y Recibos</a></li>
+                    <li><a href="/admin/admin-reportes.html">📊 Reportes y Estadísticas</a></li>
+                    <li><a href="/admin/admin-notificaciones.html">🔔 Notificaciones y Alertas <span class="badge-danger-small" id="menu-badge">0</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>Alta de Nuevos Clientes</h1>
+                <p class="subtitle">Creación de perfiles y credenciales de acceso para la plataforma.</p>
+            </div>
+
+            <div class="admin-content-grid" style="display: block; max-width: 800px; margin: 0 auto;">
+                
+                <div class="admin-panel">
+                    <h3>Formulario de Registro</h3>
+                    <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 20px;">Los campos marcados con (*) son obligatorios.</p>
+                    
+                    <form id="form-registro" class="compact-form">
+                        
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="reg-nombre">Nombre(s) *</label>
+                                <input type="text" id="reg-nombre" placeholder="Ej. Juan" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-apellidos">Apellidos *</label>
+                                <input type="text" id="reg-apellidos" placeholder="Ej. García López" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="reg-correo">Correo Electrónico *</label>
+                                <input type="email" id="reg-correo" placeholder="correo@ejemplo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-telefono">Teléfono de Contacto</label>
+                                <input type="tel" id="reg-telefono" placeholder="10 dígitos">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 25px;">
+                            <label for="reg-password">Contraseña Temporal *</label>
+                            <input type="password" id="reg-password" placeholder="Asigna una contraseña segura" required>
+                        </div>
+
+                        <div class="admin-panel" style="background-color: #f8f9fa; border: 1px dashed #ced4da; margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 10px; color: #495057;">Beneficios Físicos</h4>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer;">
+                                    <input type="checkbox" id="reg-tarjeta" style="width: auto; height: 18px; cursor: pointer;">
+                                    El cliente requiere una Tarjeta Física de Lealtad en sucursal
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-registrar" class="btn-success-large" style="width: 100%;">Completar Registro</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('form-registro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Bloquear botón para evitar dobles envíos
+            const btnSubmit = document.getElementById('btn-registrar');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Guardando...';
+
+            // Recolectar datos del formulario
+            const payload = {
+                nombre: document.getElementById('reg-nombre').value.trim(),
+                apellidos: document.getElementById('reg-apellidos').value.trim(),
+                correo: document.getElementById('reg-correo').value.trim(),
+                telefono: document.getElementById('reg-telefono').value.trim(),
+                password: document.getElementById('reg-password').value
+            };
+
+            const requiereTarjeta = document.getElementById('reg-tarjeta').checked;
+
+            try {
+                const response = await fetch('/api/admin/registro-cliente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Limpiar el formulario
+                    document.getElementById('form-registro').reset();
+
+                    // Simulación de Tarjeta Física
+                    if (requiereTarjeta) {
+                        // Generar folio alfanumérico aleatorio de 5 caracteres
+                        const folioAleatorio = Math.random().toString(36).substring(2, 7).toUpperCase();
+                        alert(`${result.mensaje}\n\nFolio de tarjeta: ${folioAleatorio}`);
+                    } else {
+                        alert(result.mensaje);
+                    }
+                } else {
+                    alert(`Error: ${result.mensaje}`);
+                }
+            } catch (error) {
+                console.error("Error en petición:", error);
+                alert("Ocurrió un error al contactar al servidor.");
+            } finally {
+                // Restaurar el botón
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = 'Completar Registro';
+            }
+        });
+    </script>
+</body>
+</html>
